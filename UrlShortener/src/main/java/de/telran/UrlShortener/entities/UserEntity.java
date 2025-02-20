@@ -1,6 +1,7 @@
 package de.telran.UrlShortener.entities;
 
 import de.telran.UrlShortener.entities.enums.UserRoleEnum;
+import de.telran.UrlShortener.entities.enums.UserStatusEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -29,13 +30,13 @@ public class UserEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "Status")
-    private UserRoleEnum status;
+    private UserStatusEnum status;
 
     @Column(name = "RegisteredAt")
     private Timestamp registeredAt;
 
-    @Column(name = "LastActiveAt")
-    private Timestamp lastActiveAt;
+//    @Column(name = "LastActiveAt")
+//    private Timestamp lastActiveAt;
 
     @Column(name = "UpdatedAt")
     private Timestamp updatedAt;
