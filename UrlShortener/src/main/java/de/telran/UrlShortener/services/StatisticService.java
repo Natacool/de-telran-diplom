@@ -98,7 +98,6 @@ public class StatisticService {
                     .stream()
                     .map(s -> s.getTitle())
                     .collect(Collectors.toList());
-
         }
 
         List<String> userStatuses = Arrays.asList(
@@ -115,7 +114,7 @@ public class StatisticService {
 
         String userEmail = "";
         if (requestUsers.getUserEmail() != null || requestUsers.getUserEmail() != ""){
-            userEmail = " AND us.Email=(:)";
+            userEmail = " AND us.Email=" + requestUsers.getUserEmail();
         }
 
         List<UserEntity> findUsers = userRepository.findUsersNative(
@@ -123,9 +122,7 @@ public class StatisticService {
                 userStatuses,
                 userEmail);
 
-
-
-
+        usersInfo = MapperUtil.convertList(findUsers, mappers::convertToStatisticUserResponseDto);
         return usersInfo;
     }
 
