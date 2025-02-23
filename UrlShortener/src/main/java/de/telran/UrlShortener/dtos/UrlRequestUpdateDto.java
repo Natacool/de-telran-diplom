@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UrlRequestDto {
+public class UrlRequestUpdateDto {
     private String url;
+    private Long newTimer;
 }

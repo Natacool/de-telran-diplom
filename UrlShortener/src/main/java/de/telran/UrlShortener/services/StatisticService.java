@@ -3,125 +3,98 @@ package de.telran.UrlShortener.services;
 import de.telran.UrlShortener.configure.MapperUtil;
 import de.telran.UrlShortener.dtos.*;
 import de.telran.UrlShortener.entities.UrlEntity;
-import de.telran.UrlShortener.entities.UserEntity;
 import de.telran.UrlShortener.mapper.Mappers;
 import de.telran.UrlShortener.repositories.UrlRepository;
 import de.telran.UrlShortener.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-//@NoArgsConstructor
 public class StatisticService {
     private final UrlRepository urlRepository;
     private final UserRepository userRepository;
     private final Mappers mappers;
 
+    public List<StatisticGeneratingUrlResponseDto> getGeneratedUrls(StatisticGeneratingUrlRequestDto requestDto){
+        List<StatisticGeneratingUrlResponseDto> generatedUrls = new ArrayList<>();
 
+        String periodDays = "365";
+        if (requestDto.getPeriodDays() > 0){
+            periodDays = requestDto.getPeriodDays().toString();
+        }
 
+        String orderBy = "Urls.CreatedAt";
+        if (requestDto.getSortByUser() == true){
+            orderBy = "Urls.UserID";
+        }
 
-    public void getGeneratedUrls(){
-        //StatisticGeneratingUrlRequestDto in = new StatisticGeneratingUrlRequestDto();
-        // UrlEntity = mapper.convert(StatisticGeneratingUrlRequestDto)
-        // UrlGeneratedQuery = qq(UrlEntity)
-        // generatedUrlList = UrlRepo.findGeneratedUrls(UrlGeneratedQuery)
-        // return generatedUrlList
+        String descent = "";
+        if (requestDto.getDescent() == true){
+            descent = "DESC";
+        }
+
+        String limitTop = "";
+        if (requestDto.getLimitTop() > 0){
+            limitTop = " limit " + requestDto.getLimitTop();
+        }
+
+        List<UrlEntity> findUrls;
+        if (requestDto.getUserId() == null){
+            findUrls =  urlRepository.findGeneratedUrlsNative(periodDays, orderBy, descent, limitTop);
+        } else {
+            findUrls =  urlRepository.findGeneratedUrlsUserNative(requestDto.getUserId(), periodDays, orderBy,descent, limitTop);
+        }
+
+        generatedUrls = MapperUtil.convertList(findUrls, mappers::convertToStatisticGeneratingUrlResponseDto);
+        return generatedUrls;
     }
-    public void getClickedUrls(){
-        //StatisticClickedUrlRequestDto in = new StatisticClickedUrlRequestDto();
-        // UrlEntity = mapper.convert(StatisticClickedUrlRequestDto)
-        // UrlClickedQuery = qq(UrlEntity)
-        // clickedUrlList = UrlRepo.findClickedUrls(UrlClickedQuery)
-        // return clickedUrlList
+    public List<StatisticClickedUrlResponseDto> getClickedUrls(StatisticClickedUrlRequestDto requestDto){
+        List<StatisticClickedUrlResponseDto> clickedUrls = new ArrayList<>();
+
+        String periodDays = "365";
+        if (requestDto.getPeriodDays() > 0){
+            periodDays = requestDto.getPeriodDays().toString();
+        }
+
+        String descent = "";
+        if (requestDto.getDescent() == true){
+            descent = "DESC";
+        }
+
+        String limitTop = "";
+        if (requestDto.getLimitTop() > 0){
+            limitTop = " limit " + requestDto.getLimitTop();
+        }
+
+        List<UrlEntity> findUrls;
+        if (requestDto.getUserId() == null){
+            findUrls =  urlRepository.findClickedUrlsNative(periodDays, descent, limitTop);
+        } else {
+            findUrls =  urlRepository.findClickedUrlsUserNative(requestDto.getUserId(), periodDays, descent, limitTop);
+        }
+
+        clickedUrls = MapperUtil.convertList(findUrls, mappers::convertToStatisticClickedUrlResponseDto);
+        return clickedUrls;
     }
 
-    public void getUsersInfo(){
-        // StatisticUserRequestDto in = new StatisticUserRequestDto();
-        // UserEntity = mapper.convert(StatisticGeneratingUrlRequestDto)
-        // UserQuery = qq(UserEntity)
-        // userList = UserRepo.findUsers(UserQuery)
-        // return userList
+    public List<StatisticUserResponseDto> getAllUsers(StatisticUserRequestDto requestUsers){
+        List<StatisticUserResponseDto> usersInfo = new ArrayList<>();
 
+        List<String> userStatuses = requestUsers
+                .getUserStatuses()
+                .stream()
+                .map(s -> s.getTitle())
+                .collect(Collectors.toList());
+
+        return usersInfo;
     }
 
-    //////////////////////////////////////////
-    //GetGeneratedUrls(USER, period) – user, admin [statistic] – email, period, generated_amount, (?sort), (?limit)
-
-
-    //////////////////////////////////////////
-    //GetClickedUrls(USER, ASC/DESC, period) – user, admin [statistic] - short, clicked_amount, sort, days, limit, long
-    // Role = ADMIN
-    // input: String email / Long userId
-    // output: UserAdminResponseDto (
-    // userId, email, role, status, registeredAt, activeAt,
-    // amountOfCreated list(created per day, week, month)
-    // amountOfClicked list(clicked per day, week, month) )
-
-
-    //////////////////////////////////////////
-    //GetAllUrls(USER) – user, admin [statistic] – short, clicked_amount, long
-    // Role = ADMIN
-    // input: String email / Long userId
-    // output: UserAdminResponseDto (
-    // userId, email, role, status, registeredAt, activeAt,
-    // amountOfCreated list(created per day, week, month)
-    // amountOfClicked list(clicked per day, week, month) )
-
-
-    //////////////////////////////////////////
-    //GetAllUrls() – admin [statistic] – short, clicked_amount, long
-    // Role = ADMIN
-    // input: String email / Long userId
-    // output: UserAdminResponseDto (
-    // userId, email, role, status, registeredAt, activeAt,
-    // amountOfCreated list(created per day, week, month)
-    // amountOfClicked list(clicked per day, week, month) )
-
-
-    //////////////////////////////////////////
-    //GetUrls(USER, mostly clicked/not clicked, ASC/DESC, limit) – user, admin [statistic]
-    // Role = ADMIN
-    // input: String email / Long userId
-    // output: UserAdminResponseDto (
-    // userId, email, role, status, registeredAt, activeAt,
-    // amountOfCreated list(created per day, week, month)
-    // amountOfClicked list(clicked per day, week, month) )
-
-
-    //////////////////////////////////////////
-    //GetAllUsers() – admin [statistic] – email, status, role, generated_amount
-    // Role = ADMIN
-    // input: String email / Long userId
-    // output: UserAdminResponseDto (
-    // userId, email, role, status, registeredAt, activeAt,
-    // amountOfCreated list(created per day, week, month)
-    // amountOfClicked list(clicked per day, week, month) )
-
-
-
-    //////////////////////////////////////////
-    //GetUsers(active/not_active, role, status, ASC/DESC, limit) – admin [statistic]
-    // Role = ADMIN
-    // input: String email / Long userId
-    // output: UserAdminResponseDto (
-    // userId, email, role, status, registeredAt, activeAt,
-    // amountOfCreated list(created per day, week, month)
-    // amountOfClicked list(clicked per day, week, month) )
-
-
-    //////////////////////////////////////////
-    //GetUserInfo(user_id) – admin [statistic]
-    // Role = ADMIN
-    // input: String email //??p Long userId
-    // output: UserAdminResponseDto (
-    // userId, email, role, status, registeredAt, activeAt,
-    // amountOfCreated list(created per day, week, month)
-    // amountOfClicked list(clicked per day, week, month) )
-    public void GetUserInfo(String userEmail) {};
-    //public void GetUserInfo(Long userId) {};
+    public void getUserInfo(String userEmail) {};
+    public void getUserInfo(Long userid) {};
 
 }

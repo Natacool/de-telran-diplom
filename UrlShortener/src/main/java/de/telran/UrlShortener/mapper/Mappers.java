@@ -1,15 +1,11 @@
 package de.telran.UrlShortener.mapper;
 
-
-import de.telran.UrlShortener.dtos.UrlCopyEntityDto;
-import de.telran.UrlShortener.dtos.UserCopyEntityDto;
+import de.telran.UrlShortener.dtos.*;
 import de.telran.UrlShortener.entities.UrlEntity;
 import de.telran.UrlShortener.entities.UserEntity;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
-
-import java.sql.Timestamp;
 
 @Component
 @RequiredArgsConstructor
@@ -36,144 +32,61 @@ public class Mappers {
         return urlCopyDto;
     }
 
-/*
-    public class StatisticUserRequestDto {
-    private List<String> userEmails;
-    private List<UserRoleEnum> userRoles;
-    private List<UserStatusEnum> userStatuses;
-    private Integer periodGenerated;
-    private Integer periodClicked;
-    private Boolean onlyUserInfo;
-}
 
-*/
+    public UserResponseDto convertToUserResponseDto(UserEntity userEntity) {
+        if(userEntity==null) return new UserResponseDto();
 
-/*
+        UserResponseDto userResponseDto = modelMapper.map(userEntity, UserResponseDto.class);
+        userResponseDto.setPasswordHash("*****");
 
-  public class StatisticUserResponseDto {
-    private Long userId; //?
-    private String userEmail;
-    private UserRoleEnum role;
-    private UserStatusEnum status;
-    private Timestamp registeredAt;
-    private Timestamp lastActiveAt;
-    private Timestamp updatedAt;
-    //optional
-    private Long generatedAmount;
-    private Long clickedAmount;
-}
+        if (userResponseDto.getUpdatedAt() == null)
+            userResponseDto.setUpdatedAt(userResponseDto.getRegisteredAt());
 
-*/
-
-/*
- public class StatisticClickedUrlRequestDto {
-    // if userIds = null - get for all users, else for users from the list
-    private List<Long> userIds;
-    // if periodDays = 0 - get overall, else clickedAmount for the period
-    private Integer periodDays;
-    private Integer limitTop;
-    // if descent = true - non-popular first
-    private Boolean descent;
-
-    // if groupUser = true - sort per User, then per amount, else per amount only
-    private Boolean groupUser;
-    //private List<String> userEmails;
-    //private boolean total;
-}
-
- */
-
-/*
-public class StatisticClickedUrlResponseDto {
-    private String shortUrl;
-    private Long clickedAmount;
-    private Long userId;
-    //private String userEmail;
-    private String longUrl;
-}
-
- */
-
-/*
-public class StatisticGeneratingUrlRequestDto {
-    private List<Long> userIds;
-    //private List<String> userEmails;
-    //private Timestamp startDate;
-    //private Timestamp endDate;
-    private Integer periodDays;
-    //private boolean total;
-
-    //private Integer limitUser;
-    private Boolean descent;
-
-}
-
- */
-
-/*
-
-public class StatisticGeneratingUrlResponseDto {
-    private Integer periodDays;
-    private Long total;
-    private Map<Long, Long> userInfo;
-    //private Map<String, Long> userInfo;
-
-    //private Map<Long, Map<Timestamp, Long>> userInfo;
-    //private Map<String, Map<Timestamp, Long>> userInfo;
-
-}
-
- */
-
-
-
-/*
-    public UserDto convertToUserDto(UsersEntity usersEntity) {
-        if(usersEntity==null) return new UserDto();
-        modelMapper.typeMap(UsersEntity.class, UserDto.class)
-                .addMappings(mapper -> mapper.skip(UserDto::setEmail)); // исключаем этот метод из работы
-        UserDto userDto = modelMapper.map(usersEntity, UserDto.class); //автомат
-        if (userDto.getPasswordHash()!=null)
-            userDto.setPasswordHash("***"); // замещаем данных
-
-        // преобразовываем
-        if (usersEntity.getFavorites()!=null) {
-            Set<FavoritesDto> favoritesDtoSet = MapperUtil.convertSet(usersEntity.getFavorites(), this::convertToFavoritesDto);
-            userDto.setFavorites(favoritesDtoSet);
-        }
-
-        CartDto cartDto = convertToCartDto(usersEntity.getCart()); // второй связанный объект
-        userDto.setCart(cartDto);
-        return userDto;
+        return userResponseDto;
     }
 
-    public CartDto convertToCartDto(CartEntity cartEntity) {
-        CartDto cartDto = null;
-        if(cartEntity!=null)
-            cartDto = modelMapper.map(cartEntity, CartDto.class); //автомат
-        return cartDto;
+    public StatisticClickedUrlResponseDto convertToStatisticClickedUrlResponseDto(UrlEntity urlEntity) {
+        if(urlEntity == null) return new StatisticClickedUrlResponseDto();
+
+        //StatisticClickedUrlResponseDto clickedUrlsDto = modelMapper.map(urlEntity, StatisticClickedUrlResponseDto.class);
+        StatisticClickedUrlResponseDto clickedUrlsDto = new StatisticClickedUrlResponseDto();
+        clickedUrlsDto.setShortUrl(urlEntity.getShortUrl());
+        clickedUrlsDto.setClickedAmount(urlEntity.getClickAmount());
+        clickedUrlsDto.setUserId(urlEntity.getUser().getUserId());
+        clickedUrlsDto.setLongUrl(urlEntity.getLongUrl());
+
+        return clickedUrlsDto;
     }
 
-    public FavoritesDto convertToFavoritesDto(FavoritesEntity favoritesEntity) {
-        FavoritesDto favoritesDto = modelMapper.map(favoritesEntity, FavoritesDto.class); //автомат
-        favoritesDto.setUser(null);
-        return favoritesDto;
+    public StatisticGeneratingUrlResponseDto convertToStatisticGeneratingUrlResponseDto(UrlEntity urlEntity) {
+        if(urlEntity == null) return new StatisticGeneratingUrlResponseDto();
+
+        //StatisticGeneratingUrlResponseDto GeneratingUrlsDto = modelMapper.map(urlEntity, StatisticGeneratingUrlResponseDto.class);
+        StatisticGeneratingUrlResponseDto GeneratingUrlsDto = new StatisticGeneratingUrlResponseDto();
+        GeneratingUrlsDto.setCreatedAt(urlEntity.getCreatedAt());
+        GeneratingUrlsDto.setUserId(urlEntity.getUser().getUserId());
+        GeneratingUrlsDto.setShortUrl(urlEntity.getShortUrl());
+        GeneratingUrlsDto.setLongUrl(urlEntity.getLongUrl());
+
+        return GeneratingUrlsDto;
     }
 
-    public UsersEntity convertToUserEntity(UserDto userDto) {
-        UsersEntity usersEntity = modelMapper.map(userDto, UsersEntity.class); //автомат
-        return usersEntity;
-    }
+    public StatisticUserResponseDto convertToStatisticUserResponseDto(UserEntity userEntity) {
+        if(userEntity == null) return new StatisticUserResponseDto();
 
-    public ProductsDto convertToProductsDto(ProductsEntity products) {
-        ProductsDto productsDto = modelMapper.map(products, ProductsDto.class);
-        return productsDto;
-    }
+        //StatisticUserResponseDto usersDto = modelMapper.map(userEntity, StatisticUserResponseDto.class);
+        StatisticUserResponseDto usersDto = new StatisticUserResponseDto();
+        usersDto.setUserId(userEntity.getUserId());
+        usersDto.setUserEmail(userEntity.getEmail());
+        usersDto.setRole(userEntity.getRole());
+        usersDto.setStatus(userEntity.getStatus());
 
-    public ProductsEntity convertToProducts(ProductsDto productsDto) {
-        ProductsEntity products = modelMapper.map(productsDto, ProductsEntity.class);
-        return products;
-    }
-*/
+        usersDto.setRegisteredAt(userEntity.getRegisteredAt());
+        usersDto.setLastActiveAt(userEntity.getLastActiveAt());
+        usersDto.setUpdatedAt(userEntity.getUpdatedAt());
+        usersDto.setGeneratedAmount(0L);
+        usersDto.setClickedAmount(0L);
 
+        return usersDto;
+    }
 }

@@ -35,8 +35,8 @@ public class UserEntity {
     @Column(name = "RegisteredAt")
     private Timestamp registeredAt;
 
-//    @Column(name = "LastActiveAt")
-//    private Timestamp lastActiveAt;
+    @Column(name = "LastActiveAt")
+    private Timestamp lastActiveAt;
 
     @Column(name = "UpdatedAt")
     private Timestamp updatedAt;

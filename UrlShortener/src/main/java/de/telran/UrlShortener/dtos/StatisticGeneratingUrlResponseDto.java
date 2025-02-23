@@ -11,12 +11,8 @@ import java.util.Map;
 @NoArgsConstructor
 @Data
 public class StatisticGeneratingUrlResponseDto {
-    private Integer periodDays;
-    private Long total;
-    private Map<Long, Long> userInfo;
-    //private Map<String, Long> userInfo;
-
-    //private Map<Long, Map<Timestamp, Long>> userInfo;
-    //private Map<String, Map<Timestamp, Long>> userInfo;
-
+    private Timestamp createdAt;
+    private Long userId;
+    private String shortUrl;
+    private String longUrl;
 }

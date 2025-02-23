@@ -11,14 +11,10 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 public class StatisticGeneratingUrlRequestDto {
-    private List<Long> userIds;
-    //private List<String> userEmails;
-    //private Timestamp startDate;
-    //private Timestamp endDate;
-    private Integer periodDays;
-    //private boolean total;
-
-    //private Integer limitUser;
+    private Long userId;
+    private Long periodDays;
+    private Boolean sortByUser;
     private Boolean descent;
+    private Long limitTop;
 
 }

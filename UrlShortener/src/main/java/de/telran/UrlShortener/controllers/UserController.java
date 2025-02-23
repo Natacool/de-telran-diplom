@@ -16,13 +16,7 @@ import java.util.List;
 @RequestMapping(value = "/users")
 @RequiredArgsConstructor
 public class UserController {
-
     private final UserService userService;
-    //@PostConstruct
-    void init() {
-        System.out.println("Run code during creating an object: "
-                + this.getClass().getName());
-    }
 
     @GetMapping
     public ResponseEntity<List<UserCopyEntityDto>> getAllUsers() {
@@ -30,14 +24,6 @@ public class UserController {
         return new ResponseEntity<>(users, HttpStatus.valueOf(200));
     }
 
-/*
-    @GetMapping  //select
-    public ResponseEntity<List<UserDto>> getAllUsers() {
-        List<UserDto> users = new ArrayList<>();
-        //userService.getAllUsers();
-        return new ResponseEntity<>(users, HttpStatusCode.valueOf(200));
-    }
-*/
     @GetMapping(value = "/{id}")
     public ResponseEntity<UserDto> getUserById(@PathVariable Long id) {
         if (id < 0) {
@@ -48,7 +34,6 @@ public class UserController {
         return ResponseEntity.status(222).body(user);
     }
 
-    // Экранирование кириллицы для url - https://planetcalc.ru/683/
     @GetMapping(value = "/get")
     public ResponseEntity<UserDto> getUserByName(@RequestParam String name) { ///users/get?name=Other,k=2
         UserDto user = new UserDto();
@@ -95,15 +80,27 @@ public class UserController {
         return ResponseEntity.status(204).body(user1);
     }
 
-    @PreDestroy
-    public ResponseEntity<Void> destroy() {
-        //userService.destroy();
+    @DeleteMapping(value = "/{user}")
+    public ResponseEntity<UserResponseDto> deleteUser(@PathVariable UserRequestDto user) { //delete
+        UserDto delUser = new UserDto();
+        //userService.getUserById(id);
+        UserRequestDto user11 = new UserRequestDto();
+        userService.deleteUser(user);
+        UserResponseDto user1 = new UserResponseDto();
 
-        System.out.println("Run code after finishing work with the object: "
-                + this.getClass().getName());
-        return ResponseEntity.status(HttpStatus.OK).body(null);
+        return ResponseEntity.status(204).body(user1);
     }
 
+    @DeleteMapping(value = "/{email}")
+    public ResponseEntity<UserResponseDto> deleteUser(@PathVariable String email) { //delete
+        UserDto delUser = new UserDto();
+        //userService.getUserById(id);
+        UserRequestDto user = new UserRequestDto();
+        userService.deleteUser(user);
+        UserResponseDto user1 = new UserResponseDto();
+
+        return ResponseEntity.status(204).body(user1);
+    }
 
     // For testing purpose
     @GetMapping(value = "/test")

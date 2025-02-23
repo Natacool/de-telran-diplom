@@ -2,8 +2,8 @@ package de.telran.UrlShortener.controllers;
 
 import de.telran.UrlShortener.dtos.UrlCopyEntityDto;
 import de.telran.UrlShortener.dtos.UrlDto;
+import de.telran.UrlShortener.dtos.UrlRequestUpdateDto;
 import de.telran.UrlShortener.services.UrlService;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,28 +15,55 @@ import java.util.List;
 @RestController
 @RequestMapping(value = "/urls")
 @RequiredArgsConstructor
-//@NoArgsConstructor
 public class UrlController {
     private final UrlService urlService;
 
-
-    //@ResponseStatus(HttpStatus.ACCEPTED)
-    @GetMapping(value = "/{url}")
+    @GetMapping(value = "/x/{url}")
 // wrk    public RedirectView redirectUrl(@PathVariable(name = "url") String shortUrl){
-//    public String redirectUrl(@PathVariable(name = "url") String shortUrl){
-    public String redirectUrl(@PathVariable(name = "url") String shortUrl){
-//        @GetMapping(value = "/{shortUrl}")
-//    public String redirectUrl(@PathVariable String shortUrl){
-///    public String redirectUrl(){
-///    public RedirectView redirectUrl(@PathVariable String shortLink) {
-        //String longUrl = urlService.getLongUrl(shortUrl);
+    public ResponseEntity<String> redirectUrl(@PathVariable(name = "url") String shortUrl){
         String longUrl = urlService.getRedirectUrl(shortUrl);
-        return longUrl;
+        HttpStatus httpStatus = HttpStatus.OK;
+        RedirectView newView = new RedirectView(longUrl);
+        if (longUrl == ""){
+            httpStatus = HttpStatus.NOT_FOUND;
+
+        }
+
+        return ResponseEntity.status(httpStatus).body(longUrl);
 // wrk        RedirectView newView = new RedirectView(longUrl);
 // wrk        return newView;
     }
 
-//    @PostMapping(value = "/{longUrl}") //Jackson
+    //@GetMapping(value = "/test_short/{url}")
+    @GetMapping(value = "/short1")
+    public String getLongUrl1(@RequestBody UrlDto url){
+        String longUrl = urlService.getLongUrl(url.getUrl());
+        return longUrl;
+    }
+
+    @GetMapping(value = "/short2")
+    public String getLongUrl2(@RequestParam String url){
+        String longUrl = urlService.getLongUrl(url);
+        return longUrl;
+    }
+
+    // work as localhost:8090/urls/long2?url=https://www.google.com
+    @GetMapping(value = "/long2")
+    public String getShortUrl2(@RequestParam String url){
+        String shortUrl = urlService.getShortUrl(url);
+        return shortUrl;
+    }
+
+
+    //@GetMapping(value = "/test_long/{url}")
+    // work as localhost:8090/urls/long1 + body {"url": "https://www.google.com"}
+    @GetMapping(value = "/long1")
+    public String getShortUrl1(@RequestBody UrlDto url){
+        String shortUrl = urlService.getShortUrl(url.getUrl());
+        return shortUrl;
+    }
+
+    //    @PostMapping(value = "/{longUrl}") //Jackson
     @PostMapping
 //    @LogAnnotation
 //    public ResponseEntity<UrlDto> generateUrl(@RequestBody @Valid UserDto newUser) { //insert
@@ -58,46 +85,15 @@ public class UrlController {
         return new ResponseEntity<>(users, HttpStatus.valueOf(200));
     }
 
-
-
-    /*
-    //@ResponseStatus(HttpStatus.ACCEPTED)
-    @GetMapping//(value = "/")
-    public String getAllUrls(){
-//        @GetMapping(value = "/{shortUrl}")
-//    public String redirectUrl(@PathVariable String shortUrl){
-///    public String redirectUrl(){
-///    public RedirectView redirectUrl(@PathVariable String shortLink) {
-        //String longUrl = urlService.getLongUrl(shortUrl);
-        String longUrl = new String();//urlService.getLongUrl(url);
-        return longUrl;
-// wrk        RedirectView newView = new RedirectView(longUrl);
-// wrk        return newView;
-    }
-*/
     @GetMapping(value = "/{id}")
     public String getUrls(@PathVariable Long id){
-//        @GetMapping(value = "/{shortUrl}")
-//    public String redirectUrl(@PathVariable String shortUrl){
-///    public String redirectUrl(){
-///    public RedirectView redirectUrl(@PathVariable String shortLink) {
-        //String longUrl = urlService.getLongUrl(shortUrl);
+
         String longUrl = new String();//urlService.getLongUrl(shortUrl);
         return longUrl;
 // wrk        RedirectView newView = new RedirectView(longUrl);
 // wrk        return newView;
     }
 
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    @PutMapping
-    // user ???
-    // admin can update timer for deleting
-    //public UrlDto updateUrl(@RequestBody @Valid CategoryDto updCategory) { //update
-    public UrlDto updateUrl(@RequestBody UrlDto updateUrl) { //update
-        UrlDto retDto = new UrlDto();
-        return retDto;
-        //return urlService.updateCategories(updCategory);
-    }
 
 
     // user can delete own short url
@@ -107,26 +103,23 @@ public class UrlController {
         //urlService.deleteUrl(id);
     }
     @DeleteMapping(value = "/{id}")
-    public void deleteUrl(@PathVariable Long id) { //delete
-        //urlService.deleteUrl(id);
+    public void deleteUrlById(@PathVariable Long id) { //delete
+        urlService.deleteUrlById(id);
     }
 
-/*
-    @ResponseStatus(HttpStatus.ACCEPTED)
+    @DeleteMapping(value = "/{url1}")
+    public void deleteByShortUrl(@PathVariable String url1) { //delete
+        urlService.deleteByShortUrl(url1);
+    }
+
+    @DeleteMapping(value = "/{url2}")
+    public void deleteByShortUrl(@PathVariable UrlDto url2) { //delete
+        urlService.deleteByShortUrl(url2);
+    }
     @PutMapping
     // user ???
     // admin can update timer for deleting
-    public UrlDto updateUrl(@RequestBody @Valid CategoryDto updCategory) { //update
-        return urlService.updateCategories(updCategory);
+    public UrlCopyEntityDto updateUrl(@RequestBody /*@Valid*/ UrlRequestUpdateDto updateUrl) { //update
+        return urlService.updateCleanTimer(updateUrl);
     }
-
-    // user can delete own short url
-    // admin can delete any short url
-    @DeleteMapping(value = "/{id}")
-    public void deleteUrl(@PathVariable String id) { //delete
-        urlService.deleteUrl(id);
-    }
-*/
-
-
 }

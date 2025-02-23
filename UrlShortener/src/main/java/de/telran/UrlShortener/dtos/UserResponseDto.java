@@ -18,7 +18,7 @@ public class UserResponseDto { // todo: make this class as extension of UserOnly
     private UserRoleEnum role;
     private UserStatusEnum status;
     private Timestamp registeredAt;
-    private Timestamp lastActiveAt; // should be taken as last generated short link
+    private Timestamp lastActiveAt; // ? should be taken as last generated short link
     private Timestamp updatedAt;
     private String passwordHash;
 }
