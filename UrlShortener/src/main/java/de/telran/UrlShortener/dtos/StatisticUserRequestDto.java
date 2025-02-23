@@ -13,7 +13,8 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 public class StatisticUserRequestDto {
-    private List<String> userEmails;
+    //private List<String> userEmails;
+    private String userEmail;
     private List<UserRoleEnum> userRoles;
     private List<UserStatusEnum> userStatuses;
     private Integer periodGenerated;

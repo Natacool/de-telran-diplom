@@ -3,6 +3,9 @@ package de.telran.UrlShortener.services;
 import de.telran.UrlShortener.configure.MapperUtil;
 import de.telran.UrlShortener.dtos.*;
 import de.telran.UrlShortener.entities.UrlEntity;
+import de.telran.UrlShortener.entities.UserEntity;
+import de.telran.UrlShortener.entities.enums.UserRoleEnum;
+import de.telran.UrlShortener.entities.enums.UserStatusEnum;
 import de.telran.UrlShortener.mapper.Mappers;
 import de.telran.UrlShortener.repositories.UrlRepository;
 import de.telran.UrlShortener.repositories.UserRepository;
@@ -10,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -85,11 +89,42 @@ public class StatisticService {
     public List<StatisticUserResponseDto> getAllUsers(StatisticUserRequestDto requestUsers){
         List<StatisticUserResponseDto> usersInfo = new ArrayList<>();
 
-        List<String> userStatuses = requestUsers
-                .getUserStatuses()
-                .stream()
-                .map(s -> s.getTitle())
-                .collect(Collectors.toList());
+        List<String> userRoles = Arrays.asList(
+                UserRoleEnum.ADMIN.getTitle(),
+                UserRoleEnum.CLIENT.getTitle());
+        if (requestUsers.getUserRoles().size() != 0) {
+            userRoles = requestUsers
+                    .getUserRoles()
+                    .stream()
+                    .map(s -> s.getTitle())
+                    .collect(Collectors.toList());
+
+        }
+
+        List<String> userStatuses = Arrays.asList(
+                UserStatusEnum.ACTIVE.getTitle(),
+                UserStatusEnum.BLOCKED.getTitle(),
+                UserStatusEnum.DELETED.getTitle());
+        if (requestUsers.getUserStatuses().size() != 0) {
+            userStatuses = requestUsers
+                    .getUserStatuses()
+                    .stream()
+                    .map(s -> s.getTitle())
+                    .collect(Collectors.toList());
+        }
+
+        String userEmail = "";
+        if (requestUsers.getUserEmail() != null || requestUsers.getUserEmail() != ""){
+            userEmail = " AND us.Email=(:)";
+        }
+
+        List<UserEntity> findUsers = userRepository.findUsersNative(
+                userRoles,
+                userStatuses,
+                userEmail);
+
+
+
 
         return usersInfo;
     }
