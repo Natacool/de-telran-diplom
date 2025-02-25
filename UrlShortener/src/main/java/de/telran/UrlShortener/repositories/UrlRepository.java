@@ -18,33 +18,44 @@ public interface UrlRepository extends JpaRepository<UrlEntity,Long> {
             nativeQuery = true)
     public List<UrlEntity> findGeneratedUrlsNative(Long periodDays, Boolean descent);
 
-    @Query(value = "SELECT * FROM Urls ur "
-            + " WHERE DATEDIFF(curdate(), ur.CreatedAt) < (:periodDays) "
-            + " ORDER BY (:orderBy) (:descent)"
-            + " (:limitTop)",
+    @Query(value = "SELECT * FROM Urls ur ORDER BY ur.UserID limit 3",
+//            + " WHERE DATEDIFF(current_date, ur.CreatedAt) < (:periodDays) "
+//            + " ORDER BY (:orderBy) (:descent)"
+//            + " (:limitTop)",
             nativeQuery = true)
-    public List<UrlEntity> findGeneratedUrlsNative(String periodDays, String orderBy, String descent, String limitTop);
+//    public List<UrlEntity> findGeneratedUrlsNative(String periodDays, String orderBy, String descent, String limitTop);
+//    public List<UrlEntity> findGeneratedUrlsNative(String orderBy, String descent, String limitTop);
+    public List<UrlEntity> findGeneratedUrlsNative();
 
-    @Query(value = "SELECT * FROM Urls ur "
-            + " WHERE DATEDIFF(curdate(), ur.CreatedAt) < (:periodDays) "
-            + " AND ur.UserID=(:id) "
-            + " ORDER BY (:orderBy) (:descent)"
-            + " (:limitTop)",
+    @Query(value = "SELECT * FROM Urls ur ORDER BY ur.UserID limit 1",
+//    @Query(value = "SELECT * FROM Urls ur "
+//            + " WHERE DATEDIFF(current_date, ur.CreatedAt) < (:periodDays) "
+//            + " AND ur.UserID=(:id) "
+//            + " WHERE ur.UserID=(:id) "
+//            + " ORDER BY (:orderBy) (:descent)"
+//            + " (:limitTop)",
             nativeQuery = true)
-    public List<UrlEntity> findGeneratedUrlsUserNative(Long id, String periodDays, String orderBy, String descent, String limitTop);
+//    public List<UrlEntity> findGeneratedUrlsUserNative(Long id, String periodDays, String orderBy, String descent, String limitTop);
+//    public List<UrlEntity> findGeneratedUrlsUserNative(Long id, String orderBy, String descent, String limitTop);
+    public List<UrlEntity> findGeneratedUrlsUserNative();
 
-    @Query(value = "SELECT * FROM Urls ur "
-            + " WHERE DATEDIFF(curdate(), ur.CreatedAt) < (:periodDays) "
-            + " ORDER BY Urls.ClickAmount (:descent)"
-            + " (:limitTop)",
+    @Query(value = "SELECT * FROM Urls ur ORDER BY ur.ClickAmount DESC limit 3",
+//            + " WHERE DATEDIFF(current_date, ur.CreatedAt) < (:periodDays) "
+//            + " ORDER BY ur.ClickAmount (:descent)"
+//            + " (:limitTop)",
             nativeQuery = true)
-    public List<UrlEntity> findClickedUrlsNative(String periodDays, String descent, String limitTop);
+//    public List<UrlEntity> findClickedUrlsNative(String periodDays, String descent, String limitTop);
+//    public List<UrlEntity> findClickedUrlsNative(String descent, String limitTop);
+    public List<UrlEntity> findClickedUrlsNative();
 
-    @Query(value = "SELECT * FROM Urls ur "
-            + " WHERE DATEDIFF(curdate(), ur.CreatedAt) < (:periodDays) "
-            + " AND ur.UserID=(:id) "
-            + " ORDER BY Urls.ClickAmount (:descent)"
-            + " (:limitTop)",
+    @Query(value = "SELECT * FROM Urls ur ORDER BY ur.ClickAmount DESC limit 1",
+//            + " WHERE DATEDIFF(current_date, ur.CreatedAt) < (:periodDays) "
+//            + " AND ur.UserID=(:id) "
+//            + " WHERE ur.UserID=(:id) "
+//            + " ORDER BY ur.ClickAmount (:descent)"
+//            + " (:limitTop)",
             nativeQuery = true)
-    public List<UrlEntity> findClickedUrlsUserNative(Long id, String periodDays, String descent, String limitTop);
+//    public List<UrlEntity> findClickedUrlsUserNative(Long id, String periodDays, String descent, String limitTop);
+//    public List<UrlEntity> findClickedUrlsUserNative(Long id, String descent, String limitTop);
+    public List<UrlEntity> findClickedUrlsUserNative();
 }

@@ -3,11 +3,15 @@ package de.telran.UrlShortener.services;
 import de.telran.UrlShortener.configure.MapperUtil;
 import de.telran.UrlShortener.dtos.*;
 import de.telran.UrlShortener.entities.UserEntity;
+import de.telran.UrlShortener.entities.enums.UserRoleEnum;
+import de.telran.UrlShortener.entities.enums.UserStatusEnum;
 import de.telran.UrlShortener.mapper.Mappers;
 import de.telran.UrlShortener.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -16,10 +20,22 @@ public class UserService {
     private final UserRepository userRepository;
     private final Mappers mappers;
 
-    private List<UserDto> userList;
 
-    public void createUser(UserRequestDto user){
+    public UserResponseDto createUser(UserRequestDto newUser){
+        UserEntity user = new UserEntity(null,
+                newUser.getEmail(),
+                UserRoleEnum.CLIENT,
+                UserStatusEnum.ACTIVE,
+                Timestamp.valueOf(LocalDateTime.now()),
+                null,
+                null,
+                newUser.getPassword());
+        user = userRepository.save(user);
+        UserResponseDto retUser = new UserResponseDto();
 
+        retUser = mappers.convertToUserResponseDto(user);
+
+        return retUser;
     }
 
     public UserResponseDto getUserById(Long userId){
@@ -52,55 +68,58 @@ public class UserService {
         return retUser;
     }
 
-    public UserCopyEntityDto updateUser(UserRequestUpdateStatusDto updateUser) {
+    public UserResponseDto updateUser(UserRequestUpdateStatusDto updateUser) {
 
         UserEntity user = userRepository.findUserByEmail(updateUser.getEmail());
-        UserCopyEntityDto retUser = new UserCopyEntityDto();
+        UserResponseDto retUser = new UserResponseDto();
 
-        if (user != null && user.getEmail() == updateUser.getEmail()){
+        if (user != null && user.getEmail().equals(updateUser.getEmail())){
             user.setStatus(updateUser.getStatus());
             user = userRepository.save(user);
 
-            if(user != null && user.getEmail() == updateUser.getEmail()) {
-                retUser = mappers.convertToUserCopyDto(user);
+            if(user != null && user.getEmail().equals(updateUser.getEmail())) {
+                retUser = mappers.convertToUserResponseDto(user);
             }
         }
         return retUser;
     }
 
-    public boolean deleteUser(UserRequestDto delUser){
+    public Boolean deleteUser(UserRequestDto delUser){
         UserEntity user = userRepository.findUserByEmail(delUser.getEmail());
-        boolean ret = true;
+        Boolean ret = true;
 
-        if (user != null && user.getEmail() == delUser.getEmail()){
+        if (user != null && user.getEmail().equals(delUser.getEmail())){
             userRepository.delete(user);
 
             user = userRepository.findUserByEmail(delUser.getEmail());
-            if (user != null && user.getEmail() == delUser.getEmail()){
+            if (user != null && user.getEmail().equals(delUser.getEmail())){
                 ret = false;
             }
         }
         return ret;
     }
 
-    public boolean deleteUser(String email){
+    public Boolean deleteUser(String email){
         UserEntity user = userRepository.findUserByEmail(email);
-        boolean ret = true;
+        Boolean ret = true;
 
-        if (user != null && user.getEmail() == email){
+        if (user != null && user.getEmail().equals(email)){
             userRepository.delete(user);
 
             user = userRepository.findUserByEmail(email);
-            if (user != null && user.getEmail() == email){
+            if (user != null && user.getEmail().equals(email)){
                 ret = false;
             }
+        } else{
+            ret = false;
         }
+
         return ret;
     }
 
-    public boolean deleteUser(Long userId){
+    public Boolean deleteUser(Long userId){
         UserEntity user = userRepository.findById(userId).orElse(null);
-        boolean ret = true;
+        Boolean ret = true;
 
         if (user != null){
             userRepository.delete(user);

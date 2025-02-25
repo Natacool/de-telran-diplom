@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -26,13 +28,14 @@ public class UrlService {
 
     public String getGeneratedUrl(UrlDto longUrl){
         UrlEntity urlEntity = urlRepository.findByLongUrlNative(longUrl.getUrl());
-        String shortUrl;
+        String shortUrl = "";
         if (urlEntity == null){
+            Timestamp now = Timestamp.valueOf(LocalDateTime.now());
             shortUrl = longUrl.getUrl().substring(8,15);
             urlEntity = new UrlEntity(null,
                     shortUrl,
                     longUrl.getUrl(),
-                    null, // now()
+                    now, // now()
                     null,
                     0L,
                     7L,
@@ -107,8 +110,8 @@ public class UrlService {
         return ret;
     }
 
-    public boolean deleteUrlById(Long id) {
-        boolean ret = true;
+    public Boolean deleteUrlById(Long id) {
+        Boolean ret = true;
         urlRepository.deleteById(id);
         // ? do we need this check?
         UrlEntity urlEntity = urlRepository.findById(id).orElse(null);
@@ -119,8 +122,8 @@ public class UrlService {
         return ret;
     }
 
-    public boolean deleteByShortUrl(UrlDto shortUrl) {
-        boolean ret = true;
+    public Boolean deleteByShortUrl(UrlDto shortUrl) {
+        Boolean ret = true;
         UrlEntity urlEntity = urlRepository.findByShortUrlNative(shortUrl.getUrl());
         if(urlEntity != null) {
             urlRepository.delete(urlEntity);
@@ -134,8 +137,8 @@ public class UrlService {
         return ret;
     }
 
-    public boolean deleteByShortUrl(String shortUrl) {
-        boolean ret = true;
+    public Boolean deleteByShortUrl(String shortUrl) {
+        Boolean ret = true;
         UrlEntity urlEntity = urlRepository.findByShortUrlNative(shortUrl);
         if(urlEntity != null) {
             urlRepository.delete(urlEntity);

@@ -17,6 +17,7 @@ public class UserCopyEntityDto {
     private UserRoleEnum role;
     private UserStatusEnum status;
     private Timestamp registeredAt;
+    private Timestamp lastActiveAt;
     private Timestamp updatedAt;
     private String passwordHash;
 }
