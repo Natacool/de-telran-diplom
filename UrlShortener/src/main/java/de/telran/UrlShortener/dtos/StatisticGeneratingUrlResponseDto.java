@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
-import java.util.Map;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,6 +12,7 @@ import java.util.Map;
 public class StatisticGeneratingUrlResponseDto {
     private Timestamp createdAt;
     private Long userId;
+    //private String userEmail;
     private String shortUrl;
     private String longUrl;
 }

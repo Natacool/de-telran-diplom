@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
 
-// data  = getters, setters, equals() , hashCode() , and toString() methods
 @Entity
 @Table(name = "Urls")
 @Data
@@ -39,8 +38,8 @@ public class UrlEntity {
     @Column(name = "DeleteAfter", nullable = false)
     private Long deleteAfterDays;
 
-    @ManyToOne//(cascade = {CascadeType.PERSIST, CascadeType.MERGE})(fetch = FetchType.LAZY)
-    @JoinColumn(name = "UserID") // имя колонки для связи с UserEntity
+    @ManyToOne //(fetch = FetchType.LAZY)
+    @JoinColumn(name = "UserID")
     private UserEntity user;
 
     // for future

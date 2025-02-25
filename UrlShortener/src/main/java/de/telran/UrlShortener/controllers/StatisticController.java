@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/statistic")
+@RequestMapping(value = "/stat")
 public class StatisticController {
     private final StatisticService statisticService;
 
@@ -33,26 +33,24 @@ public class StatisticController {
         return new ResponseEntity<>(urls, HttpStatus.valueOf(200));
     }
 */
-
     // Admin APIs
     @GetMapping(value = "/generated_urls")
     public ResponseEntity<List<StatisticGeneratingUrlResponseDto>>
-    getAllGeneratedUrls(@RequestBody StatisticGeneratingUrlRequestDto generated) {
+    getGeneratedUrlsStat(@RequestBody StatisticGeneratingUrlRequestDto generated) {
         List<StatisticGeneratingUrlResponseDto> urls = statisticService.getGeneratedUrlsStatistic(generated);
         return new ResponseEntity<>(urls, HttpStatus.valueOf(200));
     }
 
     @GetMapping(value = "/clicked_urls")
     public ResponseEntity<List<StatisticClickedUrlResponseDto>>
-    getAllClickedUrls(@RequestBody StatisticClickedUrlRequestDto clicked) {
+    getClickedUrlsStat(@RequestBody StatisticClickedUrlRequestDto clicked) {
         List<StatisticClickedUrlResponseDto> urls = statisticService.getClickedUrlsStatistic(clicked);
         return new ResponseEntity<>(urls, HttpStatus.valueOf(200));
     }
 
-
     @GetMapping(value = "/users_info")
     public ResponseEntity<List<StatisticUserResponseDto>>
-    getAllUsers(@RequestBody StatisticUserRequestDto users) {
+    getUsersStat(@RequestBody StatisticUserRequestDto users) {
         List<StatisticUserResponseDto> resUsers = statisticService.getUsersStatistic(users);
         return new ResponseEntity<>(resUsers, HttpStatus.valueOf(200));
     }

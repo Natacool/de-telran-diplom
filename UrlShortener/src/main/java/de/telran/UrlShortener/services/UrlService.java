@@ -3,7 +3,7 @@ package de.telran.UrlShortener.services;
 import de.telran.UrlShortener.configure.MapperUtil;
 import de.telran.UrlShortener.dtos.UrlCopyEntityDto;
 import de.telran.UrlShortener.dtos.UrlDto;
-import de.telran.UrlShortener.dtos.UrlRequestUpdateDto;
+import de.telran.UrlShortener.dtos.UrlRequestUpdateDeleteTimerDto;
 import de.telran.UrlShortener.entities.UrlEntity;
 import de.telran.UrlShortener.mapper.Mappers;
 import de.telran.UrlShortener.repositories.UrlRepository;
@@ -69,7 +69,7 @@ public class UrlService {
 
     public String getLongUrl(String shortUrl){
         UrlEntity urlEntity = urlRepository.findByShortUrlNative(shortUrl);
-        String longUrl = "llll";
+        String longUrl = "";
         if (urlEntity != null && urlEntity.getLongUrl() != null){
             longUrl = urlEntity.getLongUrl();
         }
@@ -90,11 +90,9 @@ public class UrlService {
         List<UrlEntity> urls = urlRepository.findAll();
         List<UrlCopyEntityDto> urlsCopy = MapperUtil.convertList(urls, mappers::convertToUrlCopy);
         return urlsCopy;
-
-
     }
 
-    public UrlCopyEntityDto updateCleanTimer(UrlRequestUpdateDto updateUrl) {
+    public UrlCopyEntityDto updateCleanTimer(UrlRequestUpdateDeleteTimerDto updateUrl) {
         UrlCopyEntityDto ret = new UrlCopyEntityDto();
 
         UrlEntity urlEntity = urlRepository.findByShortUrlNative(updateUrl.getUrl());
@@ -106,7 +104,6 @@ public class UrlService {
                 ret = mappers.convertToUrlCopy(urlEntity);
             }
         }
-
         return ret;
     }
 

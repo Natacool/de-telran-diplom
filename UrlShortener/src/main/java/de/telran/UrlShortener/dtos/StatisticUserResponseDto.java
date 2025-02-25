@@ -20,7 +20,7 @@ public class StatisticUserResponseDto {
     private Timestamp registeredAt;
     private Timestamp lastActiveAt;
     private Timestamp updatedAt;
-    //optional
+    //optional ?
     private Long generatedAmount;
     private Long clickedAmount;
 }

@@ -34,6 +34,10 @@ public class StatisticService {
         List<StatisticClickedUrlResponseDto> clickedUrls = new ArrayList<>();
         return clickedUrls;
     }
+
+//    public void getUserInfo(String userEmail) {};
+//    public void getUserInfo(Long userid) {};
+
 */
     // ADMIN APIs
     public List<StatisticGeneratingUrlResponseDto> getGeneratedUrlsStatistic(StatisticGeneratingUrlRequestDto requestDto){
@@ -70,7 +74,10 @@ public class StatisticService {
             findUrls =  urlRepository.findGeneratedUrlsUserNative();
         }
 
-        generatedUrls = MapperUtil.convertList(findUrls, mappers::convertToStatisticGeneratingUrlResponseDto);
+        if (findUrls != null){
+            generatedUrls = MapperUtil.convertList(findUrls, mappers::convertToStatisticGeneratingUrlResponseDto);
+        }
+
         return generatedUrls;
     }
     public List<StatisticClickedUrlResponseDto> getClickedUrlsStatistic(StatisticClickedUrlRequestDto requestDto){
@@ -102,7 +109,10 @@ public class StatisticService {
             findUrls =  urlRepository.findClickedUrlsUserNative();
         }
 
-        clickedUrls = MapperUtil.convertList(findUrls, mappers::convertToStatisticClickedUrlResponseDto);
+        if (findUrls != null) {
+            clickedUrls = MapperUtil.convertList(findUrls, mappers::convertToStatisticClickedUrlResponseDto);
+        }
+
         return clickedUrls;
     }
 
@@ -143,11 +153,10 @@ public class StatisticService {
 //                userStatuses,
 //                userEmail);
 
-        usersInfo = MapperUtil.convertList(findUsers, mappers::convertToStatisticUserResponseDto);
+        if (findUsers != null) {
+            usersInfo = MapperUtil.convertList(findUsers, mappers::convertToStatisticUserResponseDto);
+        }
         return usersInfo;
     }
-
-//    public void getUserInfo(String userEmail) {};
-//    public void getUserInfo(Long userid) {};
 
 }

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -20,21 +21,43 @@ public class UserService {
     private final UserRepository userRepository;
     private final Mappers mappers;
 
-
     public UserResponseDto createUser(UserRequestDto newUser){
-        UserEntity user = new UserEntity(null,
-                newUser.getEmail(),
-                UserRoleEnum.CLIENT,
-                UserStatusEnum.ACTIVE,
-                Timestamp.valueOf(LocalDateTime.now()),
-                null,
-                null,
-                newUser.getPassword());
-        user = userRepository.save(user);
+        UserEntity user = userRepository.findUserByEmail(newUser.getEmail());
+        if (user == null) {
+            user = new UserEntity(null,
+                    newUser.getEmail(),
+                    UserRoleEnum.CLIENT,
+                    UserStatusEnum.ACTIVE,
+                    Timestamp.valueOf(LocalDateTime.now()),
+                    null,
+                    null,
+                    newUser.getPassword());
+            user = userRepository.save(user);
+        }
+
         UserResponseDto retUser = new UserResponseDto();
 
-        retUser = mappers.convertToUserResponseDto(user);
+        if (user != null) {
+            retUser = mappers.convertToUserResponseDto(user);
+        }
+        return retUser;
+    }
 
+    public UserResponseDto getUserByEmail(String userEmail){
+        UserResponseDto retUser = new UserResponseDto();
+        UserEntity userEntity = userRepository.findUserByEmail(userEmail);
+        if (userEntity != null) {
+            retUser = mappers.convertToUserResponseDto(userEntity);
+        }
+        return retUser;
+    }
+
+    public UserResponseDto getUser(UserDto user){
+        UserResponseDto retUser = new UserResponseDto();
+        UserEntity userEntity = userRepository.findUserByEmail(user.getEmail());
+        if (userEntity != null) {
+            retUser = mappers.convertToUserResponseDto(userEntity);
+        }
         return retUser;
     }
 
@@ -47,27 +70,6 @@ public class UserService {
 
         return retUser;
     }
-
-    public UserResponseDto getUserByEmail(String userEmail){
-        UserResponseDto retUser = new UserResponseDto();
-        UserEntity userEntity = userRepository.findUserByEmail(userEmail);
-        if (userEntity != null) {
-            retUser = mappers.convertToUserResponseDto(userEntity);
-        }
-
-        return retUser;
-    }
-
-    public UserResponseDto getUser(UserRequestDto user){
-        UserResponseDto retUser = new UserResponseDto();
-        UserEntity userEntity = userRepository.findUserByEmail(user.getEmail());
-        if (userEntity != null) {
-            retUser = mappers.convertToUserResponseDto(userEntity);
-        }
-
-        return retUser;
-    }
-
     public UserResponseDto updateUser(UserRequestUpdateStatusDto updateUser) {
 
         UserEntity user = userRepository.findUserByEmail(updateUser.getEmail());
@@ -133,8 +135,11 @@ public class UserService {
     }
 
     public List<UserCopyEntityDto> getAllUsers(){
+        List<UserCopyEntityDto> usersCopy = new ArrayList<>();
         List<UserEntity> users = userRepository.findAll();
-        List<UserCopyEntityDto> usersCopy = MapperUtil.convertList(users, mappers::convertToUserCopyDto);
+        if (users != null && users.size() > 0){
+            usersCopy = MapperUtil.convertList(users, mappers::convertToUserCopyDto);
+        }
         return usersCopy;
     }
 

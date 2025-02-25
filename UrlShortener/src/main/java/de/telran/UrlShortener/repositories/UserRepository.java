@@ -21,6 +21,5 @@ public interface UserRepository extends JpaRepository<UserEntity,Long> {
     public List<UserEntity> findUsersNative();
 //    public List<UserEntity> findUsersNative(List<String> userRoles,
 //                                           List<String> userStatuses,
-//                                           String userEmail);
-
+//                                           @Param("userEmail") String userEmail);
 }
