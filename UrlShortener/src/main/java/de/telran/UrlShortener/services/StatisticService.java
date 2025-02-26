@@ -146,7 +146,7 @@ public class StatisticService {
         if (requestUsers.getUserEmail() != null || requestUsers.getUserEmail() != ""){
             userEmail = " AND us.Email=" + requestUsers.getUserEmail();
         }
-
+// clean
         List<UserEntity> findUsers = userRepository.findUsersNative();
 //        List<UserEntity> findUsers = userRepository.findUsersNative(
 //                userRoles,

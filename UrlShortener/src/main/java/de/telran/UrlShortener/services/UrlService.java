@@ -129,7 +129,10 @@ public class UrlService {
             if (urlEntity != null){
                 ret = false;
             }
+        } else {
+            ret = false;
         }
+
         // ??? else Exception
         return ret;
     }
@@ -144,6 +147,8 @@ public class UrlService {
             if (urlEntity != null){
                 ret = false;
             }
+        } else {
+            ret = false;
         }
         // ??? else Exception
         return ret;

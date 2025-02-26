@@ -12,14 +12,14 @@ public interface UserRepository extends JpaRepository<UserEntity,Long> {
     public UserEntity findUserByEmail(String email);
 
     @Query(value = "SELECT * FROM Users us  ORDER BY us.Status, us.Role DESC",
-//    @Query(value = "SELECT * FROM Users us "
-//            + " WHERE us.Role in (:userRoles) "
-//            + " AND us.Status in (:userStatuses) "
-//            + " (:userEmail) "
-//            + " ORDER BY Users.Status, Users.Role DESC ",
+ //   @Query(value = "SELECT * FROM Users us "
+ //           + " WHERE us.Role in (:userRoles) "
+ //           + " AND us.Status in (:userStatuses) "
+ //           + " (:userEmail) " // use when
+ //           + " ORDER BY us.Status, us.Role DESC ",
             nativeQuery = true)
     public List<UserEntity> findUsersNative();
 //    public List<UserEntity> findUsersNative(List<String> userRoles,
 //                                           List<String> userStatuses,
-//                                           @Param("userEmail") String userEmail);
+//                                           String userEmail);
 }

@@ -97,6 +97,8 @@ public class UserService {
             if (user != null && user.getEmail().equals(delUser.getEmail())){
                 ret = false;
             }
+        } else {
+            ret = false;
         }
         return ret;
     }
@@ -112,7 +114,7 @@ public class UserService {
             if (user != null && user.getEmail().equals(email)){
                 ret = false;
             }
-        } else{
+        } else {
             ret = false;
         }
 
@@ -130,6 +132,8 @@ public class UserService {
             if (user != null){
                 ret = false;
             }
+        } else {
+            ret = false;
         }
         return ret;
     }

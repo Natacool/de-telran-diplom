@@ -2,6 +2,7 @@ package de.telran.UrlShortener.controllers;
 
 import de.telran.UrlShortener.dtos.*;
 import de.telran.UrlShortener.services.UrlService;
+import liquibase.util.StringUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,9 +30,10 @@ public class UrlController {
     @GetMapping(value = "/x")
     public RedirectView redirectUrl(@RequestBody UrlDto shortUrl){
         String longUrl = urlService.getRedirectUrl(shortUrl.getUrl());
-        if (longUrl == ""){
-            longUrl = "/urls/e";
+        if (StringUtil.isEmpty(longUrl)){
+           longUrl = "/urls/e";
         }
+
         RedirectView newView = new RedirectView(longUrl);
         return newView;
     }
@@ -66,7 +68,7 @@ public class UrlController {
     public ResponseEntity<String> getLongUrl(@RequestBody UrlDto url){
         String longUrl = urlService.getLongUrl(url.getUrl());
         HttpStatus status = HttpStatus.NOT_FOUND;
-        if (longUrl != null && longUrl != ""){
+        if (StringUtil.isNotEmpty(longUrl)){
             status = HttpStatus.OK;
         }
         return ResponseEntity.status(status).body(longUrl);
@@ -76,7 +78,7 @@ public class UrlController {
     public ResponseEntity<String> getShortUrl(@RequestBody UrlDto url){
         String shortUrl = urlService.getShortUrl(url.getUrl());
         HttpStatus status = HttpStatus.NOT_FOUND;
-        if (shortUrl != null && shortUrl != ""){
+        if (StringUtil.isNotEmpty(shortUrl)){
             status = HttpStatus.OK;
         }
         return ResponseEntity.status(status).body(shortUrl);
@@ -89,7 +91,7 @@ public class UrlController {
     updateUrlDeleteTimer(@RequestBody /*@Valid*/ UrlRequestUpdateDeleteTimerDto updateUrl) {
         UrlCopyEntityDto urlDto = urlService.updateCleanTimer(updateUrl);
         HttpStatus status = HttpStatus.NOT_MODIFIED;
-        if (urlDto != null && urlDto.getUserId() != null){
+        if (urlDto != null && urlDto.getUrlId() != null && urlDto.getUrlId() > 0){
             status = HttpStatus.OK;
         }
         return ResponseEntity.status(status).body(urlDto);
