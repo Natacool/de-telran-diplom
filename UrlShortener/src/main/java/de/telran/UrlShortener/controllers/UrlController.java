@@ -27,6 +27,16 @@ public class UrlController {
         return ResponseEntity.status(HttpStatus.OK).body(shortUrl);
     }
 
+    @PostMapping(value = "/cs")
+    public ResponseEntity<String> generateUrlByParam(
+            @RequestParam(value = "longUrl", required = true) String longUrl) {
+        UrlDto longUrlDto = new UrlDto();
+        longUrlDto.setUrl(longUrl);
+        String shortUrl = urlService.getGeneratedUrl(longUrlDto);
+        return ResponseEntity.status(HttpStatus.OK).body(shortUrl);
+    }
+
+
     @GetMapping(value = "/x")
     public RedirectView redirectUrl(@RequestBody UrlDto shortUrl){
         String longUrl = urlService.getRedirectUrl(shortUrl.getUrl());
@@ -37,6 +47,22 @@ public class UrlController {
         RedirectView newView = new RedirectView(longUrl);
         return newView;
     }
+
+    @GetMapping(value = "/x/")
+    public RedirectView redirectUrlByParam(
+            @RequestParam(value = "shortUrl", required = true) String shortUrl){
+        UrlDto shortUrlDto = new UrlDto();
+        shortUrlDto.setUrl(shortUrl);
+            //@RequestBody UrlDto shortUrl){
+        String longUrl = urlService.getRedirectUrl(shortUrlDto.getUrl());
+        if (StringUtil.isEmpty(longUrl)){
+            longUrl = "/urls/e";
+        }
+
+        RedirectView newView = new RedirectView(longUrl);
+        return newView;
+    }
+
 
     @GetMapping(value = "/e")
     public ResponseEntity<String> redirectErrMsg(){
@@ -74,7 +100,7 @@ public class UrlController {
         return ResponseEntity.status(status).body(longUrl);
     }
 
-    @GetMapping(value = "/short")
+    @GetMapping(value = "/short") ///v/short
     public ResponseEntity<String> getShortUrl(@RequestBody UrlDto url){
         String shortUrl = urlService.getShortUrl(url.getUrl());
         HttpStatus status = HttpStatus.NOT_FOUND;

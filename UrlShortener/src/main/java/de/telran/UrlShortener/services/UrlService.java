@@ -7,6 +7,8 @@ import de.telran.UrlShortener.dtos.UrlRequestUpdateDeleteTimerDto;
 import de.telran.UrlShortener.entities.UrlEntity;
 import de.telran.UrlShortener.mapper.Mappers;
 import de.telran.UrlShortener.repositories.UrlRepository;
+import de.telran.UrlShortener.utils.ShortUrlGenerator;
+import liquibase.util.StringUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,7 @@ import java.util.List;
 public class UrlService {
     private final UrlRepository urlRepository;
     private final Mappers mappers;
+    private final ShortUrlGenerator urlGenerator;
 
     public void createUrl(){
 
@@ -28,10 +31,18 @@ public class UrlService {
 
     public String getGeneratedUrl(UrlDto longUrl){
         UrlEntity urlEntity = urlRepository.findByLongUrlNative(longUrl.getUrl());
+        //String prefix = "localhost:8090/x/?shortUrl=";
+        //String prefix = "https://127.0.0.1:8090/x/?shortUrl=";
         String shortUrl = "";
         if (urlEntity == null){
             Timestamp now = Timestamp.valueOf(LocalDateTime.now());
-            shortUrl = longUrl.getUrl().substring(8,15);
+
+            //shortUrl = "localhost:8090/x/?shortUrl=";
+            shortUrl = urlGenerator.generateShortUrl2();
+//            if (StringUtil.isNotEmpty(shortUrl)){
+//                shortUrl = prefix + shortUrl;
+//            }
+
             urlEntity = new UrlEntity(null,
                     shortUrl,
                     longUrl.getUrl(),
