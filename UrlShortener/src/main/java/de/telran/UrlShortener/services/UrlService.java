@@ -31,17 +31,11 @@ public class UrlService {
 
     public String getGeneratedUrl(UrlDto longUrl){
         UrlEntity urlEntity = urlRepository.findByLongUrlNative(longUrl.getUrl());
-        //String prefix = "localhost:8090/x/?shortUrl=";
-        //String prefix = "https://127.0.0.1:8090/x/?shortUrl=";
         String shortUrl = "";
         if (urlEntity == null){
             Timestamp now = Timestamp.valueOf(LocalDateTime.now());
 
-            //shortUrl = "localhost:8090/x/?shortUrl=";
             shortUrl = urlGenerator.generateShortUrl2();
-//            if (StringUtil.isNotEmpty(shortUrl)){
-//                shortUrl = prefix + shortUrl;
-//            }
 
             urlEntity = new UrlEntity(null,
                     shortUrl,
