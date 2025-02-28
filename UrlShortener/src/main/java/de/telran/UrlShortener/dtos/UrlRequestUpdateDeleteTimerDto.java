@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class UrlRequestUpdateDeleteTimerDto {
-    private String url;
+    private String urlId;
     private Long newTimer;
 }

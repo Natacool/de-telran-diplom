@@ -1,6 +1,6 @@
 
 -- changeset Natacool:insert_test_urls
-INSERT INTO Urls (ShortUrl, UserID, CreatedAt, ClickAmount, LongUrl) VALUES
+INSERT INTO Urls (ShortUrlId, UserID, CreatedAt, ClickAmount, LongUrl) VALUES
 ('b2', 0, '2024-08-24', 99, 'https://www.google.com'),
 ('a1', 0, '2024-05-22', 10, 'https://stackoverflow.com/questions/64436514/how-can-i-create-the-free-250gb-sql-server-database-promised-with-free-azure-sub'),
 ('a2', 2, '2024-06-22', 12,  'https://ru.wikipedia.org/wiki/%D0%A1%D0%BE%D0%BA%D1%80%D0%B0%D1%89%D0%B5%D0%BD%D0%B8%D0%B5_URL'),

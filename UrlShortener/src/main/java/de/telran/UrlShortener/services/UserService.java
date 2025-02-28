@@ -52,6 +52,7 @@ public class UserService {
         return retUser;
     }
 
+/*
     public UserResponseDto getUser(UserDto user){
         UserResponseDto retUser = new UserResponseDto();
         UserEntity userEntity = userRepository.findUserByEmail(user.getEmail());
@@ -60,7 +61,8 @@ public class UserService {
         }
         return retUser;
     }
-
+*/
+/*
     public UserResponseDto getUserById(Long userId){
         UserResponseDto retUser = new UserResponseDto();
         UserEntity userEntity = userRepository.findById(userId).orElse(null);
@@ -70,6 +72,8 @@ public class UserService {
 
         return retUser;
     }
+*/
+
     public UserResponseDto updateUser(UserRequestUpdateStatusDto updateUser) {
 
         UserEntity user = userRepository.findUserByEmail(updateUser.getEmail());
@@ -86,6 +90,7 @@ public class UserService {
         return retUser;
     }
 
+/*
     public Boolean deleteUser(UserRequestDto delUser){
         UserEntity user = userRepository.findUserByEmail(delUser.getEmail());
         Boolean ret = true;
@@ -102,7 +107,7 @@ public class UserService {
         }
         return ret;
     }
-
+*/
     public Boolean deleteUser(String email){
         UserEntity user = userRepository.findUserByEmail(email);
         Boolean ret = true;
@@ -121,6 +126,7 @@ public class UserService {
         return ret;
     }
 
+/*
     public Boolean deleteUser(Long userId){
         UserEntity user = userRepository.findById(userId).orElse(null);
         Boolean ret = true;
@@ -137,6 +143,7 @@ public class UserService {
         }
         return ret;
     }
+*/
 
     public List<UserCopyEntityDto> getAllUsers(){
         List<UserCopyEntityDto> usersCopy = new ArrayList<>();
@@ -147,10 +154,11 @@ public class UserService {
         return usersCopy;
     }
 
+/*
     public List<UserCopyEntityDto> getAllUsers1(){
         List<UserEntity> users = userRepository.findAll();
         List<UserCopyEntityDto> usersCopy = MapperUtil.convertList(users, mappers::convertToUserCopyDto);
         return usersCopy;
     }
-
+*/
 }

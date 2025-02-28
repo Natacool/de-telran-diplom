@@ -20,8 +20,8 @@ public class UrlEntity {
     @Column(name = "UrlID", nullable = false)
     private Long urlId;
 
-    @Column(name = "ShortUrl", unique = true)
-    private String shortUrl;
+    @Column(name = "ShortUrlId", unique = true)
+    private String shortUrlId;
 
     @Column(name = "LongUrl", nullable = false, columnDefinition = "TEXT")
     private String longUrl;

@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UrlDto {
+public class ShortUrlIdDto {
     private String urlId;
-    private String url;
 }

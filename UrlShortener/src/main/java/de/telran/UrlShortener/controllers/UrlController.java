@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.List;
@@ -21,52 +22,72 @@ public class UrlController {
     @PostMapping(value = "/c")
 //    @LogAnnotation
 //    public ResponseEntity<UrlDto> generateUrl(@RequestBody @Valid UserDto newUser) { //insert
-    public ResponseEntity<String> generateUrl(@RequestBody UrlDto longUrl) {
+    public ResponseEntity<String> generateUrl(@RequestBody LongUrlDto longUrl) {
         String shortUrl = urlService.getGeneratedUrl(longUrl);
         // HttpStatus.OK is to avoid HttpStatus.FOUND/HttpStatus.CREATED
         return ResponseEntity.status(HttpStatus.OK).body(shortUrl);
     }
-
+/*
+    @RequestMapping(value = "/{id1}", method=RequestMethod.GET)
+    public RedirectView redirectUrl(@PathVariable String id1, HttpServletRequest request, HttpServletResponse response) throws IOException, URISyntaxException, Exception {
+        LOGGER.info("Received shortened url to redirect: " + id);
+        String redirectUrlString = urlConverterService.getLongURLFromID(id);
+        LOGGER.info("Original URL: " + redirectUrlString);
+        RedirectView redirectView = new RedirectView();
+        redirectView.setUrl("http://" + redirectUrlString);
+        return redirectView;
+    }
+*/
     @GetMapping(value = "/x")
-    public RedirectView redirectUrl(@RequestBody UrlDto shortUrl){
-        String longUrl = urlService.getRedirectUrl(shortUrl.getUrl());
+    public RedirectView redirectUrlBody(@RequestBody ShortUrlIdDto shortUrl) {
+        String longUrl = urlService.getRedirectUrl(shortUrl.getUrlId());
         if (StringUtil.isEmpty(longUrl)){
-           longUrl = "/urls/e";
+           longUrl = "/wrong/url/"+shortUrl.getUrlId();
         }
-
         RedirectView newView = new RedirectView(longUrl);
         return newView;
     }
 
-    @GetMapping(value = "/e")
-    public ResponseEntity<String> redirectErrMsg(){
-        String errorMsg = "Error: URL not found.";
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("");
+    @GetMapping(value = "/{urlId}")
+    public RedirectView redirectUrl(@PathVariable String urlId) {
+        String longUrl = urlService.getRedirectUrl(urlId);
+        if (StringUtil.isEmpty(longUrl)){
+            longUrl = "/wrong/url/"+urlId;
+        }
+        RedirectView newView = new RedirectView(longUrl);
+        return newView;
     }
 
-    @DeleteMapping
-    public ResponseEntity<String> deleteByShortUrl(@RequestBody UrlDto shortUrl) {
+
+    @GetMapping(value = "/wrong/url/{urlId}")
+    public ResponseEntity<String> redirectErrMsg(@PathVariable String urlId){
+        String homeURL = ServletUriComponentsBuilder.fromCurrentContextPath().toUriString();
+        String errorMsg = "Error: URL: '" + homeURL + "/" + urlId +"' not found.";
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorMsg);
+    }
+
+    @DeleteMapping //(value = "/r")
+    public ResponseEntity<String> deleteByShortUrl(@RequestBody ShortUrlIdDto shortUrl) {
         Boolean ret = urlService.deleteByShortUrl(shortUrl);
         HttpStatus status = HttpStatus.OK;
-        String resp = "URL: '" + shortUrl.getUrl() + "' deleted";
+        String resp = "URL: '" + shortUrl.getUrlId() + "' deleted";
         if (!ret){
             status = HttpStatus.BAD_REQUEST;
-            resp = "Error: URL: '" + shortUrl.getUrl() + "' NOT deleted";
+            resp = "Error: URL: '" + shortUrl.getUrlId() + "' NOT deleted";
         }
         return ResponseEntity.status(status).body(resp);
     }
 
     // Admin APIs
-    @GetMapping
+    @GetMapping  //(value = "/r")
     public ResponseEntity<List<UrlCopyEntityDto>> getAllUrls() {
         List<UrlCopyEntityDto> users = urlService.getAllUrls();
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
-    //@GetMapping(value = "/test_short/{url}")
-    @GetMapping(value = "/long")
-    public ResponseEntity<String> getLongUrl(@RequestBody UrlDto url){
-        String longUrl = urlService.getLongUrl(url.getUrl());
+    @GetMapping(value = "/long") // /r
+    public ResponseEntity<String> getLongUrl(@RequestBody ShortUrlIdDto url){
+        String longUrl = urlService.getLongUrl(url.getUrlId());
         HttpStatus status = HttpStatus.NOT_FOUND;
         if (StringUtil.isNotEmpty(longUrl)){
             status = HttpStatus.OK;
@@ -74,8 +95,8 @@ public class UrlController {
         return ResponseEntity.status(status).body(longUrl);
     }
 
-    @GetMapping(value = "/short")
-    public ResponseEntity<String> getShortUrl(@RequestBody UrlDto url){
+    @GetMapping(value = "/short") // /r
+    public ResponseEntity<String> getShortUrl(@RequestBody LongUrlDto url){
         String shortUrl = urlService.getShortUrl(url.getUrl());
         HttpStatus status = HttpStatus.NOT_FOUND;
         if (StringUtil.isNotEmpty(shortUrl)){
@@ -84,7 +105,7 @@ public class UrlController {
         return ResponseEntity.status(status).body(shortUrl);
     }
 
-    @PutMapping
+    @PutMapping //(value = "/r")
     // user ???
     // admin can update timer for deleting
     public ResponseEntity<UrlCopyEntityDto>
@@ -96,10 +117,11 @@ public class UrlController {
         }
         return ResponseEntity.status(status).body(urlDto);
     }
-
+/*
     // For testing purpose
     @GetMapping(value = "/test")
     public String testGet(){
         return "Привет, я контроллер - UrlsController, " + this.toString();
     }
+*/
 }
