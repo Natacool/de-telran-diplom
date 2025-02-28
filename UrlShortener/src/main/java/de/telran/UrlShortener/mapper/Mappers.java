@@ -50,7 +50,7 @@ public class Mappers {
 
         //StatisticClickedUrlResponseDto clickedUrlsDto = modelMapper.map(urlEntity, StatisticClickedUrlResponseDto.class);
         StatisticClickedUrlResponseDto clickedUrlsDto = new StatisticClickedUrlResponseDto();
-        clickedUrlsDto.setShortUrl(urlEntity.getShortUrl());
+        clickedUrlsDto.setShortUrl(urlEntity.getShortUrlId());
         clickedUrlsDto.setClickedAmount(urlEntity.getClickAmount());
         //clickedUrlsDto.setUserId(urlEntity.getUser().getUserId());
         clickedUrlsDto.setLongUrl(urlEntity.getLongUrl());
@@ -65,7 +65,7 @@ public class Mappers {
         StatisticGeneratingUrlResponseDto GeneratingUrlsDto = new StatisticGeneratingUrlResponseDto();
         GeneratingUrlsDto.setCreatedAt(urlEntity.getCreatedAt());
         //GeneratingUrlsDto.setUserId(urlEntity.getUser().getUserId());
-        GeneratingUrlsDto.setShortUrl(urlEntity.getShortUrl());
+        GeneratingUrlsDto.setShortUrl(urlEntity.getShortUrlId());
         GeneratingUrlsDto.setLongUrl(urlEntity.getLongUrl());
 
         return GeneratingUrlsDto;

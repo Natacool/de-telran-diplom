@@ -1,22 +1,21 @@
 package de.telran.UrlShortener.services;
 
 import de.telran.UrlShortener.configure.MapperUtil;
+import de.telran.UrlShortener.dtos.LongUrlDto;
 import de.telran.UrlShortener.dtos.UrlCopyEntityDto;
-import de.telran.UrlShortener.dtos.UrlDto;
+import de.telran.UrlShortener.dtos.ShortUrlIdDto;
 import de.telran.UrlShortener.dtos.UrlRequestUpdateDeleteTimerDto;
 import de.telran.UrlShortener.entities.UrlEntity;
 import de.telran.UrlShortener.mapper.Mappers;
 import de.telran.UrlShortener.repositories.UrlRepository;
 import de.telran.UrlShortener.utils.ShortUrlGenerator;
-import liquibase.util.StringUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
-
 
 @Service
 @RequiredArgsConstructor
@@ -25,11 +24,7 @@ public class UrlService {
     private final Mappers mappers;
     private final ShortUrlGenerator urlGenerator;
 
-    public void createUrl(){
-
-    }
-
-    public String getGeneratedUrl(UrlDto longUrl){
+    public String getGeneratedUrl(LongUrlDto longUrl){
         UrlEntity urlEntity = urlRepository.findByLongUrlNative(longUrl.getUrl());
         String shortUrl = "";
         if (urlEntity == null){
@@ -49,31 +44,32 @@ public class UrlService {
                     false
                     );
             UrlEntity saved = urlRepository.save(urlEntity);
+            String homeURL = ServletUriComponentsBuilder.fromCurrentContextPath().toUriString();
+            shortUrl = homeURL + "/" + urlEntity.getShortUrlId();
+
             if (saved != urlEntity)
             {
-                //shortUrl = saved.getShortUrl();
                 shortUrl = "";
             }
         }
         else {
-            shortUrl = urlEntity.getShortUrl();
+            String homeURL = ServletUriComponentsBuilder.fromCurrentContextPath().toUriString();
+            shortUrl = homeURL + "/" + urlEntity.getShortUrlId();
         }
-
         return shortUrl;
     }
 
-    public String getRedirectUrl(String shortUrl){
+    public String getRedirectUrl(String shortUrlId){
         String longUrl ="";
-        UrlEntity urlEntity = urlRepository.findByShortUrlNative(shortUrl);
+        UrlEntity urlEntity = urlRepository.findByShortUrlIdNative(shortUrlId);
         if (urlEntity != null){
             longUrl = urlEntity.getLongUrl();
         }
-
         return longUrl;
     }
 
-    public String getLongUrl(String shortUrl){
-        UrlEntity urlEntity = urlRepository.findByShortUrlNative(shortUrl);
+    public String getLongUrl(String shortUrlId){
+        UrlEntity urlEntity = urlRepository.findByShortUrlIdNative(shortUrlId);
         String longUrl = "";
         if (urlEntity != null && urlEntity.getLongUrl() != null){
             longUrl = urlEntity.getLongUrl();
@@ -83,11 +79,10 @@ public class UrlService {
 
     public String getShortUrl(String longUrl){
         UrlEntity urlEntity = urlRepository.findByLongUrlNative(longUrl);
-        String shortUrl = "ssss";
-        if (urlEntity != null && urlEntity.getShortUrl() != null){
-            shortUrl = urlEntity.getShortUrl();
+        String shortUrl = "";
+        if (urlEntity != null && urlEntity.getShortUrlId() != null){
+            shortUrl = urlEntity.getShortUrlId();
         }
-
         return shortUrl;
     }
 
@@ -99,12 +94,10 @@ public class UrlService {
 
     public UrlCopyEntityDto updateCleanTimer(UrlRequestUpdateDeleteTimerDto updateUrl) {
         UrlCopyEntityDto ret = new UrlCopyEntityDto();
-
-        UrlEntity urlEntity = urlRepository.findByShortUrlNative(updateUrl.getUrl());
+        UrlEntity urlEntity = urlRepository.findByShortUrlIdNative(updateUrl.getUrlId());
         if (urlEntity != null){
             urlEntity.setDeleteAfterDays(updateUrl.getNewTimer());
             urlEntity = urlRepository.save(urlEntity);
-            //urlEntity = urlRepository.findById(urlEntity.getUrlId()).orElse(null);
             if (urlEntity != null) {
                 ret = mappers.convertToUrlCopy(urlEntity);
             }
@@ -112,6 +105,7 @@ public class UrlService {
         return ret;
     }
 
+/*
     public Boolean deleteUrlById(Long id) {
         Boolean ret = true;
         urlRepository.deleteById(id);
@@ -120,43 +114,38 @@ public class UrlService {
         if (urlEntity != null){
             ret = false;
         }
-
         return ret;
     }
-
-    public Boolean deleteByShortUrl(UrlDto shortUrl) {
+*///
+    public Boolean deleteByShortUrl(ShortUrlIdDto shortUrlId) {
         Boolean ret = true;
-        UrlEntity urlEntity = urlRepository.findByShortUrlNative(shortUrl.getUrl());
+        UrlEntity urlEntity = urlRepository.findByShortUrlIdNative(shortUrlId.getUrlId());
         if(urlEntity != null) {
             urlRepository.delete(urlEntity);
-            // ? do we need this check?
-            urlEntity = urlRepository.findByShortUrlNative(shortUrl.getUrl());
+            urlEntity = urlRepository.findByShortUrlIdNative(shortUrlId.getUrlId());
             if (urlEntity != null){
                 ret = false;
             }
         } else {
             ret = false;
         }
-
-        // ??? else Exception
         return ret;
     }
-
-    public Boolean deleteByShortUrl(String shortUrl) {
+/*
+    public Boolean deleteByShortUrl(String shortUrlId) {
         Boolean ret = true;
-        UrlEntity urlEntity = urlRepository.findByShortUrlNative(shortUrl);
+        UrlEntity urlEntity = urlRepository.findByShortUrlIdNative(shortUrlId);
         if(urlEntity != null) {
             urlRepository.delete(urlEntity);
             // ? do we need this check?
-            urlEntity = urlRepository.findByShortUrlNative(shortUrl);
+            urlEntity = urlRepository.findByShortUrlIdNative(shortUrlId);
             if (urlEntity != null){
                 ret = false;
             }
         } else {
             ret = false;
         }
-        // ??? else Exception
         return ret;
     }
-
+*/
 }

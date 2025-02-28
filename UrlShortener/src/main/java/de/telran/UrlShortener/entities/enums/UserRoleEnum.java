@@ -1,6 +1,7 @@
 package de.telran.UrlShortener.entities.enums;
 
 public enum UserRoleEnum {
+//    ANONIM("ANONIM"),
     CLIENT("CLIENT"),
     ADMIN("ADMIN");
 

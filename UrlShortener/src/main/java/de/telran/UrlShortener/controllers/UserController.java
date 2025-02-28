@@ -75,10 +75,11 @@ public class UserController {
         }
         return ResponseEntity.status(status).body(resp);
     }
-
+/*
     // For testing purpose
     @GetMapping(value = "/test")
     public String testGet(){
         return "Привет, я контроллер - UsersController, " + this.toString();
     }
+*/
 }

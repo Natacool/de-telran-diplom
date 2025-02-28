@@ -7,8 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface UrlRepository extends JpaRepository<UrlEntity,Long> {
-    @Query(value = "SELECT * FROM Urls ur WHERE ur.ShortUrl=?1", nativeQuery = true)
-    public UrlEntity findByShortUrlNative(String shortUrl);
+    @Query(value = "SELECT * FROM Urls ur WHERE ur.ShortUrlId=?1", nativeQuery = true)
+    public UrlEntity findByShortUrlIdNative(String shortUrlId);
 
     @Query(value = "SELECT * FROM Urls ur WHERE ur.LongUrl=?1", nativeQuery = true)
     public UrlEntity findByLongUrlNative(String longUrl);

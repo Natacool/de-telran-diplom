@@ -3,7 +3,7 @@
 -- changeset Natacool:Urls
 create table Urls(
 	UrlID INT primary key auto_increment NOT NULL,
-    ShortUrl varchar(70) not null unique,
+    ShortUrlId varchar(70) not null unique,
     LongUrl varchar(2048) not null,
     CreatedAt datetime NOT NULL,
 	ClickedAt datetime NULL,
