@@ -9,6 +9,7 @@
     <include file="db/changelog/changeSets/create.table.sql"/>
     <include file="db/changelog/changeSets/v0.1/insert_users.sql"/>
     <include file="db/changelog/changeSets/v0.1/insert_urls.sql"/>
+    <include file="db/changelog/changeSets/v0.1/create_schedlock.sql"/>
 <!--    <include file="db/changelog/changeSets/v0.1/insert_users.sql"/>-->
 <!--    <include file="db/changelog/changeSets/v0.1/insert_favorites.sql"/>-->
 <!--    <include file="db/changelog/changeSets/v0.1/insert_cart.sql"/>-->

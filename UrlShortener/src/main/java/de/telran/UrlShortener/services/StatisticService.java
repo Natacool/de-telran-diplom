@@ -6,10 +6,11 @@ import de.telran.UrlShortener.entities.UrlEntity;
 import de.telran.UrlShortener.entities.UserEntity;
 import de.telran.UrlShortener.entities.enums.UserRoleEnum;
 import de.telran.UrlShortener.entities.enums.UserStatusEnum;
-import de.telran.UrlShortener.mapper.Mappers;
+import de.telran.UrlShortener.utils.mapper.Mappers;
 import de.telran.UrlShortener.repositories.UrlRepository;
 import de.telran.UrlShortener.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -40,6 +41,7 @@ public class StatisticService {
 
 */
     // ADMIN APIs
+    @Async
     public List<StatisticGeneratingUrlResponseDto> getGeneratedUrlsStatistic(StatisticGeneratingUrlRequestDto requestDto){
         List<StatisticGeneratingUrlResponseDto> generatedUrls = new ArrayList<>();
 
@@ -80,6 +82,8 @@ public class StatisticService {
 
         return generatedUrls;
     }
+
+    @Async
     public List<StatisticClickedUrlResponseDto> getClickedUrlsStatistic(StatisticClickedUrlRequestDto requestDto){
         List<StatisticClickedUrlResponseDto> clickedUrls = new ArrayList<>();
 
@@ -116,6 +120,7 @@ public class StatisticService {
         return clickedUrls;
     }
 
+    @Async
     public List<StatisticUserResponseDto> getUsersStatistic(StatisticUserRequestDto requestUsers){
         List<StatisticUserResponseDto> usersInfo = new ArrayList<>();
 

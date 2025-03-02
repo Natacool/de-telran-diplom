@@ -1,4 +1,4 @@
-package de.telran.UrlShortener.mapper;
+package de.telran.UrlShortener.utils.mapper;
 
 import de.telran.UrlShortener.dtos.*;
 import de.telran.UrlShortener.entities.UrlEntity;

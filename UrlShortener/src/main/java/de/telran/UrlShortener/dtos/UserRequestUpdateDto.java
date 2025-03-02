@@ -5,10 +5,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.sql.Timestamp;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class UserRequestUpdateStatusDto {
+public class UserRequestUpdateDto {
     private String email;
     private UserStatusEnum status;
+//    private Timestamp lastActiveAt;
 }

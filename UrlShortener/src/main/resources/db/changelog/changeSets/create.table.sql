@@ -9,7 +9,7 @@ create table Urls(
 	ClickedAt datetime NULL,
     ClickAmount INT default 0,
     DeleteAfter INT default 7,
-    UserID INT default 0,
+    userId INT default 0,
     UpdatedAt datetime NULL,
     Favorite BOOL default false
 );
@@ -22,7 +22,7 @@ create table Users(
     Role ENUM('CLIENT', 'ADMIN') NULL, -- default 'CLIENT'
     Status ENUM('ACTIVE', 'BLOCKED', 'DELETED') NULL, -- default 'ACTIVE'
     RegisteredAt datetime NOT NULL,
-	LastActiveAt datetime NULL, -- can be get from last created url
+	LastActiveAt datetime, -- NOT NULL, -- can be get from last created url
     UpdatedAt datetime NULL,
     PasswordHash VARCHAR(255) NULL
 );

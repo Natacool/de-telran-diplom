@@ -55,7 +55,7 @@ public class UserController {
     }
 
     @PutMapping
-    public ResponseEntity<UserResponseDto> updateUserStatus(@RequestBody UserRequestUpdateStatusDto updUser) {
+    public ResponseEntity<UserResponseDto> updateUserStatus(@RequestBody UserRequestUpdateDto updUser) {
         UserResponseDto user = userService.updateUser(updUser);
         HttpStatus status = HttpStatus.NOT_MODIFIED;
         if (user != null && user.getUserId() != null){
