@@ -27,17 +27,7 @@ public class UrlController {
         // HttpStatus.OK is to avoid HttpStatus.FOUND/HttpStatus.CREATED
         return ResponseEntity.status(HttpStatus.OK).body(shortUrl);
     }
-/*
-    @RequestMapping(value = "/{id1}", method=RequestMethod.GET)
-    public RedirectView redirectUrl(@PathVariable String id1, HttpServletRequest request, HttpServletResponse response) throws IOException, URISyntaxException, Exception {
-        LOGGER.info("Received shortened url to redirect: " + id);
-        String redirectUrlString = urlConverterService.getLongURLFromID(id);
-        LOGGER.info("Original URL: " + redirectUrlString);
-        RedirectView redirectView = new RedirectView();
-        redirectView.setUrl("http://" + redirectUrlString);
-        return redirectView;
-    }
-*/
+
     @GetMapping(value = "/x")
     public RedirectView redirectUrlBody(@RequestBody ShortUrlIdDto shortUrl) {
         String longUrl = urlService.getRedirectUrl(shortUrl.getUrlId());
@@ -57,7 +47,6 @@ public class UrlController {
         RedirectView newView = new RedirectView(longUrl);
         return newView;
     }
-
 
     @GetMapping(value = "/wrong/url/{urlId}")
     public ResponseEntity<String> redirectErrMsg(@PathVariable String urlId){

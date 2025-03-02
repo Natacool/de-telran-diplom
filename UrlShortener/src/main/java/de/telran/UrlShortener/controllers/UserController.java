@@ -15,7 +15,6 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
 
-    // User APIs
     @PostMapping
     public ResponseEntity<UserResponseDto> createUser(@RequestBody UserRequestDto newUser) {
         UserResponseDto user = userService.createUser(newUser);
@@ -26,17 +25,6 @@ public class UserController {
 
         return ResponseEntity.status(status).body(user);
     }
-
-    // Admin APIs
-//    public UserResponseDto getUserById(Long userId)
-//    public UserResponseDto getUserByEmail(String userEmail)
-//    public UserResponseDto getUser(UserRequestDto user)
-//    public UserCopyEntityDto updateUser(UserRequestUpdateStatusDto updateUser)
-//    public boolean deleteUser(UserRequestDto delUser)
-//    public boolean deleteUser(String email)
-//    public boolean deleteUser(Long userId)
-//    public List<UserCopyEntityDto> getAllUsers()
-//    public List<UserCopyEntityDto> getAllUsers1()
 
     @GetMapping
     public ResponseEntity<List<UserCopyEntityDto>> getAllUsers() {
@@ -75,11 +63,5 @@ public class UserController {
         }
         return ResponseEntity.status(status).body(resp);
     }
-/*
-    // For testing purpose
-    @GetMapping(value = "/test")
-    public String testGet(){
-        return "Привет, я контроллер - UsersController, " + this.toString();
-    }
-*/
+
 }

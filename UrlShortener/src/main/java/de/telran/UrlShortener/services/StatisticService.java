@@ -25,22 +25,6 @@ public class StatisticService {
     private final UserRepository userRepository;
     private final Mappers mappers;
 
-    // USER APIs
-/*
-    public List<StatisticGeneratingUrlResponseDto> getUserGeneratedUrlsStatistic(StatisticGeneratingUrlRequestDto requestDto) {
-        List<StatisticGeneratingUrlResponseDto> generatedUrls = new ArrayList<>();
-        return generatedUrls;
-    }
-    public List<StatisticClickedUrlResponseDto> getUserClickedUrlsStatistic(StatisticClickedUrlRequestDto requestDto) {
-        List<StatisticClickedUrlResponseDto> clickedUrls = new ArrayList<>();
-        return clickedUrls;
-    }
-
-//    public void getUserInfo(String userEmail) {};
-//    public void getUserInfo(Long userid) {};
-
-*/
-    // ADMIN APIs
     @Async
     public List<StatisticGeneratingUrlResponseDto> getGeneratedUrlsStatistic(StatisticGeneratingUrlRequestDto requestDto){
         List<StatisticGeneratingUrlResponseDto> generatedUrls = new ArrayList<>();

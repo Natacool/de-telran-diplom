@@ -27,58 +27,41 @@ import java.util.List;
 @Slf4j
 public class SchedulerService {
 
-    @Value("${scheduler.clean.for.users}")
+    @Value("${scheduler.url.clean.days}")
     private String deleteAfterDaysStr;
     private Long deleteAfterDays;
 
-    @Value("${scheduler.block.users}")
+    @Value("${scheduler.users.block}")
     private String blockNotActiveUsersStr;
     private Long blockNotActiveUsers;
 
-    @Value("${scheduler.delete.users}")
+    @Value("${scheduler.users.delete}")
     private String deleteBlockedUsersStr;
     private Long deleteBlockedUsers;
 
-    @Value("${scheduler.remove.users}")
+    @Value("${scheduler.users.remove}")
     private String removeDeletedUsersStr;
     private Long removeDeletedUsers;
 
-    //@Autowired
-    //private UrlRepository urlRepository;
     private final UrlRepository urlRepository;
     private final UserRepository userRepository;
 
     @PostConstruct
     void init() {
-//        log.info("---------------------- INIT 1 "+ LocalDateTime.now());
-//        log.info("Long: "+ deleteAfterDays + ", String: " + deleteAfterDaysStr);
         deleteAfterDays = Long.parseLong(deleteAfterDaysStr);
         blockNotActiveUsers = Long.parseLong(blockNotActiveUsersStr);
         deleteBlockedUsers = Long.parseLong(deleteBlockedUsersStr);
         removeDeletedUsers = Long.parseLong(removeDeletedUsersStr);
-//        log.info("---------------------- INIT 2 "+ LocalDateTime.now());
-//        log.info("Long: "+ deleteAfterDays + ", String: " + deleteAfterDaysStr);
-
-//        System.out.println("Выполняем логику при создании объекта "
-//                + this.getClass().getName());
     }
 
-
-
-
-    //@Async
-    // cron job for anonym: at 2 am every day
-    // cron.clean_anonym = 0 0 2 * * *
-    //@Scheduled(cron = "${cron.clean.anonym}")
-    //@Scheduled(cron = "0 0 * * * *") // every hour:00:00
-///    @Scheduled(cron = "0 */2 * * * *") // every 5 min
-///    @SchedulerLock(name = "cleanShortUrlAnonymCronJob")
-    // delete short urls in db which old then 1/6/12 months
+    // delete short urls of anonym users in db which old then DB value (by default = 7)
+    // requirements: 1/6/12 months from CreatedAt date; I choose 7 days
+    @Async
+    @Scheduled(cron = "${cron.clean.url.anonym}")
+    @SchedulerLock(name = "cleanShortUrlAnonymCronJob")
     public void cleanShortUrlAnonymCronJob() {
-        log.info("!!!!!!!! scheduledCronTaskAnonym -> "+ LocalDateTime.now());
-        //List<UrlEntity> urlEntityList = urlRepository.findAll();
+        log.trace("scheduledCronTaskAnonym -> "+ LocalDateTime.now());
         List<UrlEntity> urlEntityList = urlRepository.findUrlsNotRegisteredUsers();
-
 
         for (UrlEntity urlEntity : urlEntityList) {
             if (urlEntity.getUser() == null || urlEntity.getUser().getUserId() == 0){
@@ -94,70 +77,60 @@ public class SchedulerService {
                     toDelete = Duration.between(created, now).toDays() > urlEntity.getDeleteAfterDays();
                 }
 
-//                if (toDelete) {
-                    log.info("!!!!!!!!  PROP deleteAfterDays -> "+ this.deleteAfterDays);
-                    log.info("!!!!!!!!  DB deleteAfterDays -> "+ urlEntity.getDeleteAfterDays());
-                    log.info("!!!!!!!!  getUrlId -> "+ urlEntity.getUrlId());
-                    log.info("!!!!!!!!  getShortUrlId -> "+ urlEntity.getShortUrlId());
-                    log.info("!!!!!!!!  getCreatedAt -> "+ urlEntity.getCreatedAt());
-                    log.info("!!!!!!!! getClickedAt -> "+ urlEntity.getClickedAt());
-                    log.info("!!!!!!!!  getUser -> "+ urlEntity.getUser());
-                    log.info("------------------------------------------ ");
+                    log.trace("+ PROP deleteAfterDays -> "+ this.deleteAfterDays);
+                    log.trace("+ DB deleteAfterDays -> "+ urlEntity.getDeleteAfterDays());
+                    log.trace("+ getUrlId -> "+ urlEntity.getUrlId());
+                    log.trace("+ getShortUrlId -> "+ urlEntity.getShortUrlId());
+                    log.trace("+ getCreatedAt -> "+ urlEntity.getCreatedAt());
+                    log.trace("+ getClickedAt -> "+ urlEntity.getClickedAt());
+                    log.trace("+ getUser -> "+ urlEntity.getUser());
                 if (toDelete) {
-                    //urlRepository.deleteById(urlEntity.getUrlId());
+                    log.info("UrlId -> "+ urlEntity.getUrlId() + " DELETED");
+                    urlRepository.deleteById(urlEntity.getUrlId());
                 }
+                log.trace("+++++++++++++++++++++++++++++++++++++++++++");
             }
         }
     }
 
-    //@Async
-    // cron job for registered user: at 3 am every day
-    // cron.clean_user = 0 0 3 * * *
-    //@Scheduled(cron = "${cron.clean.user}")
-////    @Scheduled(cron = "0 58 * * * *") // every hour:58:00 (the 58th minute of every hour)
-    ///@Scheduled(cron = "0 */2 * * * *") // every 2 min
-    //@Scheduled(cron="15 * * * * *") //каждую минуту на 15 секунде
-///    @SchedulerLock(name = "cleanShortUrlUserCronJob")
-    // delete short urls in db which old then 1/6/12 months
-///    @Scheduled(cron = "0 */3 * * * *")
+    // delete short urls of registered users in db which old then {scheduler.clean.for.users}
+    // requirements: 1/6/12 months from ClickedAt date
+    @Async
+    @Scheduled(cron = "${cron.clean.url.users}")
+    @SchedulerLock(name = "cleanShortUrlUserCronJob")
     public void cleanShortUrlUserCronJob() {
-        log.info("************* cleanShortUrlUserCronJob -> "+ LocalDateTime.now() + " "  + this.deleteAfterDays);
+        log.trace(" cleanShortUrlUserCronJob -> "+ LocalDateTime.now() + " "  + this.deleteAfterDays);
 
-        //List<UrlEntity> urlEntityList = urlRepository.findAll();
         List<UrlEntity> urlEntityList = urlRepository.findUrlsRegisteredUsers();
 
         for (UrlEntity urlEntity : urlEntityList) {
-            if (//urlEntity.getUser() == null ||
-                    //urlEntity.getUser().getUserId() == 0 ||
-                urlEntity.getClickedAt() == null ||
+            if (urlEntity.getClickedAt() == null ||
                 urlEntity.getDeleteAfterDays() == null ||
                 Duration.between(urlEntity.getClickedAt().toLocalDateTime(),
                         LocalDateTime.now()).toDays() > (urlEntity.getDeleteAfterDays() > this.deleteAfterDays?
                         urlEntity.getDeleteAfterDays():this.deleteAfterDays)) {
 
-                log.info("************* PROP deleteAfterDays -> "+ this.deleteAfterDays);
-                log.info("************* DB deleteAfterDays -> "+ urlEntity.getDeleteAfterDays());
-                log.info("************* getUrlId -> "+ urlEntity.getUrlId());
-                log.info("************* getShortUrlId -> "+ urlEntity.getShortUrlId());
-                log.info("************* getCreatedAt -> "+ urlEntity.getCreatedAt());
-                log.info("************* getClickedAt -> "+ urlEntity.getClickedAt());
-                log.info("************* getUser -> "+ urlEntity.getUser());
-                log.info("*********************************************************************  ");
+                log.trace("* PROP deleteAfterDays -> "+ this.deleteAfterDays);
+                log.trace("* DB deleteAfterDays -> "+ urlEntity.getDeleteAfterDays());
+                log.trace("* getUrlId -> "+ urlEntity.getUrlId());
+                log.trace("* getShortUrlId -> "+ urlEntity.getShortUrlId());
+                log.trace("* getCreatedAt -> "+ urlEntity.getCreatedAt());
+                log.trace("* getClickedAt -> "+ urlEntity.getClickedAt());
+                log.trace("* getUser -> "+ urlEntity.getUser());
 
-                //urlRepository.deleteById(urlEntity.getUrlId());
+                log.info("UrlId -> "+ urlEntity.getUrlId() + " DELETED");
+                urlRepository.deleteById(urlEntity.getUrlId());
+                log.trace("*********************************************************************  ");
             }
         }
     }
 
-/// BLOCK
-    //@Async
-    //@Scheduled(cron = "0 30 3 * * *") // every day at  3:30
+    // BLOCK USERs which are NOT active > {scheduler.users.block} days
+    @Async
     @Scheduled(cron = "${cron.block.users}")
-    //@Scheduled(cron = "0 58 * * * *") // every hour:58:00 (the 58th minute of every hour)
-    //@Scheduled(cron = "0 */3 * * * *")
     @SchedulerLock(name = "blockNotActiveUsersCronJob")
     public void blockNotActiveUsersCronJob() {
-        log.info("************* scheduledCronTaskUser -> "+ LocalDateTime.now() +
+        log.trace("blockNotActiveUsersCronJob -> "+ LocalDateTime.now() +
                 " BLOCK USER NOT ACTIVE > "  + this.blockNotActiveUsers + " days");
 
         // not admin not blocked/deleted
@@ -170,25 +143,21 @@ public class SchedulerService {
                 userEntity.setStatus(UserStatusEnum.BLOCKED);
                 userEntity.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
 
-                log.info("************* BLOCK USER -> "+ userEntity.getEmail());
-                log.info("************* status -> "+ userEntity.getStatus());
-                log.info("************* last active -> "+ userEntity.getLastActiveAt());
-
+                log.info("BLOCK USER -> "+ userEntity.getEmail());
+                log.trace("status -> "+ userEntity.getStatus());
+                log.trace("last active -> "+ userEntity.getLastActiveAt());
                 userRepository.save(userEntity);
             }
         }
     }
 
-/// DELETE
-    //@Async
-    //@Scheduled(cron = "0 30 3 * * *") // every day at  3:30
+    // DELETE USERs which are blocked > {scheduler.users.delete} days
+    @Async
     @Scheduled(cron = "${cron.delete.users}")
-    //@Scheduled(cron = "0 58 * * * *") // every hour:58:00 (the 58th minute of every hour)
-    //@Scheduled(cron = "0 */4 * * * *")
     @SchedulerLock(name = "deleteBlockedUsersCronJob")
     public void deleteBlockedUsersCronJob() {
-        log.info("************* scheduledCronTaskUser -> "+ LocalDateTime.now() +
-                " DELETE BLOCKED USER after > "  + this.deleteBlockedUsers + " days");
+        log.trace("deleteBlockedUsersCronJob -> "+ LocalDateTime.now() +
+                " DELETE BLOCKED USER after "  + this.deleteBlockedUsers + " days");
 
         // not admin & blocked
         List<UserEntity> userEntities = userRepository.findNotAdminUsersByStatus(UserStatusEnum.BLOCKED.getTitle());
@@ -200,37 +169,31 @@ public class SchedulerService {
                 userEntity.setStatus(UserStatusEnum.DELETED);
                 userEntity.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
 
-                log.info("************* DELETE USER -> "+ userEntity.getEmail());
-                log.info("************* status -> "+ userEntity.getStatus());
-                log.info("************* updated -> "+ userEntity.getUpdatedAt());
-
+                log.info("DELETE USER -> "+ userEntity.getEmail());
+                log.trace("status -> "+ userEntity.getStatus());
+                log.trace("updated -> "+ userEntity.getUpdatedAt());
                 userRepository.save(userEntity);
             }
         }
     }
 
-
-/// REMOVE
-    //@Async
-    //@Scheduled(cron = "0 30 3 * * *") // every day at  3:30
+    // REMOVE USERs which are deleted > {scheduler.users.remove} days
+    @Async
     @Scheduled(cron = "${cron.remove.users}")
-    //@Scheduled(cron = "0 58 * * * *") // every hour:58:00 (the 58th minute of every hour)
-    //@Scheduled(cron = "0 */5 * * * *")
     @SchedulerLock(name = "removeDeletedUsersCronJob")
     public void removeDeletedUsersCronJob() {
-        log.info("************* scheduledCronTaskUser -> "+ LocalDateTime.now() +
-                " REMOVE DELETED USER after > "  + this.removeDeletedUsers + " days");
+        log.trace("removeDeletedUsersCronJob -> "+ LocalDateTime.now() +
+                " REMOVE DELETED USER after "  + this.removeDeletedUsers + " days");
 
-        // not admin & blocked
         List<UserEntity> userEntities = userRepository.findNotAdminUsersByStatus(UserStatusEnum.DELETED.getTitle());
 
         for (UserEntity userEntity : userEntities) {
             if (userEntity.getUpdatedAt() == null ||
                     Duration.between(userEntity.getUpdatedAt().toLocalDateTime(),
                             LocalDateTime.now()).toDays() > this.removeDeletedUsers) {
-                log.info("************* REMOVE USER -> "+ userEntity.getEmail());
-                log.info("************* status -> "+ userEntity.getStatus());
-                log.info("************* updated -> "+ userEntity.getUpdatedAt());
+                log.info("REMOVE USER -> "+ userEntity.getEmail());
+                log.trace("status -> "+ userEntity.getStatus());
+                log.trace("updated -> "+ userEntity.getUpdatedAt());
                 userRepository.delete(userEntity);
             }
         }
