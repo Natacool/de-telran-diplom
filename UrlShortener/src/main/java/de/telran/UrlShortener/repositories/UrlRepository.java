@@ -10,6 +10,10 @@ public interface UrlRepository extends JpaRepository<UrlEntity,Long> {
     @Query(value = "SELECT * FROM Urls ur WHERE ur.ShortUrlId=?1", nativeQuery = true)
     public UrlEntity findByShortUrlIdNative(String shortUrlId);
 
+    @Query("SELECT ur FROM UrlEntity ur WHERE ur.shortUrlId=?1")
+    public UrlEntity findByShortUrlId(String shortUrlId);
+
+
     @Query(value = "SELECT * FROM Urls ur WHERE ur.LongUrl=?1", nativeQuery = true)
     public UrlEntity findByLongUrlNative(String longUrl);
 
@@ -17,6 +21,15 @@ public interface UrlRepository extends JpaRepository<UrlEntity,Long> {
             + " WHERE ur.LongUrl=?1",
             nativeQuery = true)
     public List<UrlEntity> findGeneratedUrlsNative(Long periodDays, Boolean descent);
+
+
+    @Query(value = "SELECT * FROM Urls ur WHERE (ur.UserID=0 OR ur.UserID is NULL) ", nativeQuery = true)
+    public List<UrlEntity> findUrlsNotRegisteredUsers();
+
+    @Query(value = "SELECT * FROM Urls ur WHERE (ur.UserID!=0)", nativeQuery = true)
+    public List<UrlEntity> findUrlsRegisteredUsers();
+
+
 
     @Query(value = "SELECT * FROM Urls ur ORDER BY ur.UserID limit 3",
 //            + " WHERE DATEDIFF(current_date, ur.CreatedAt) < (:periodDays) "

@@ -6,10 +6,11 @@ import de.telran.UrlShortener.dtos.UrlCopyEntityDto;
 import de.telran.UrlShortener.dtos.ShortUrlIdDto;
 import de.telran.UrlShortener.dtos.UrlRequestUpdateDeleteTimerDto;
 import de.telran.UrlShortener.entities.UrlEntity;
-import de.telran.UrlShortener.mapper.Mappers;
+import de.telran.UrlShortener.utils.mapper.Mappers;
 import de.telran.UrlShortener.repositories.UrlRepository;
-import de.telran.UrlShortener.utils.ShortUrlGenerator;
+import de.telran.UrlShortener.utils.generator.ShortUrlGenerator;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -19,6 +20,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UrlService {
     private final UrlRepository urlRepository;
     private final Mappers mappers;
@@ -62,8 +64,29 @@ public class UrlService {
     public String getRedirectUrl(String shortUrlId){
         String longUrl ="";
         UrlEntity urlEntity = urlRepository.findByShortUrlIdNative(shortUrlId);
-        if (urlEntity != null){
+        if (urlEntity != null && urlEntity.getLongUrl() != null){
             longUrl = urlEntity.getLongUrl();
+            Timestamp now = Timestamp.valueOf(LocalDateTime.now());
+            Long plusOneClick = 0L;
+            if (urlEntity.getClickAmount() != null) {
+                plusOneClick = urlEntity.getClickAmount()+1L;
+                urlEntity.setClickAmount(plusOneClick);
+            }
+            urlEntity.setClickedAt(now);
+
+            urlEntity = urlRepository.save(urlEntity);
+            if (urlEntity == null || (urlEntity != null &&
+                (urlEntity.getLongUrl() == null || !urlEntity.getLongUrl().equals(longUrl)))){
+                    longUrl ="";
+            }
+            if (urlEntity != null &&
+                    (urlEntity.getClickAmount() == null || urlEntity.getClickAmount() != plusOneClick)) {
+                    log.error(" Click Amount for URL ID: "+ urlEntity.getUrlId() + " NOT updated");
+            }
+            if (urlEntity != null &&
+                    (urlEntity.getClickedAt() == null || urlEntity.getClickedAt() != now)) {
+                log.error(" Date ClickedAt for URL ID: "+ urlEntity.getUrlId() + " NOT updated");
+            }
         }
         return longUrl;
     }
@@ -97,6 +120,7 @@ public class UrlService {
         UrlEntity urlEntity = urlRepository.findByShortUrlIdNative(updateUrl.getUrlId());
         if (urlEntity != null){
             urlEntity.setDeleteAfterDays(updateUrl.getNewTimer());
+            urlEntity.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
             urlEntity = urlRepository.save(urlEntity);
             if (urlEntity != null) {
                 ret = mappers.convertToUrlCopy(urlEntity);
@@ -105,18 +129,6 @@ public class UrlService {
         return ret;
     }
 
-/*
-    public Boolean deleteUrlById(Long id) {
-        Boolean ret = true;
-        urlRepository.deleteById(id);
-        // ? do we need this check?
-        UrlEntity urlEntity = urlRepository.findById(id).orElse(null);
-        if (urlEntity != null){
-            ret = false;
-        }
-        return ret;
-    }
-*///
     public Boolean deleteByShortUrl(ShortUrlIdDto shortUrlId) {
         Boolean ret = true;
         UrlEntity urlEntity = urlRepository.findByShortUrlIdNative(shortUrlId.getUrlId());
@@ -131,21 +143,4 @@ public class UrlService {
         }
         return ret;
     }
-/*
-    public Boolean deleteByShortUrl(String shortUrlId) {
-        Boolean ret = true;
-        UrlEntity urlEntity = urlRepository.findByShortUrlIdNative(shortUrlId);
-        if(urlEntity != null) {
-            urlRepository.delete(urlEntity);
-            // ? do we need this check?
-            urlEntity = urlRepository.findByShortUrlIdNative(shortUrlId);
-            if (urlEntity != null){
-                ret = false;
-            }
-        } else {
-            ret = false;
-        }
-        return ret;
-    }
-*/
 }

@@ -1,4 +1,4 @@
-package de.telran.UrlShortener.utils;
+package de.telran.UrlShortener.utils.generator;
 
 import de.telran.UrlShortener.configure.UrlGenerationConfig;
 import lombok.RequiredArgsConstructor;

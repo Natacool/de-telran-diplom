@@ -117,11 +117,4 @@ public class UrlController {
         }
         return ResponseEntity.status(status).body(urlDto);
     }
-/*
-    // For testing purpose
-    @GetMapping(value = "/test")
-    public String testGet(){
-        return "Привет, я контроллер - UrlsController, " + this.toString();
-    }
-*/
 }

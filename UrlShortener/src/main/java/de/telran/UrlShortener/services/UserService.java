@@ -5,7 +5,7 @@ import de.telran.UrlShortener.dtos.*;
 import de.telran.UrlShortener.entities.UserEntity;
 import de.telran.UrlShortener.entities.enums.UserRoleEnum;
 import de.telran.UrlShortener.entities.enums.UserStatusEnum;
-import de.telran.UrlShortener.mapper.Mappers;
+import de.telran.UrlShortener.utils.mapper.Mappers;
 import de.telran.UrlShortener.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,13 +24,14 @@ public class UserService {
     public UserResponseDto createUser(UserRequestDto newUser){
         UserEntity user = userRepository.findUserByEmail(newUser.getEmail());
         if (user == null) {
+            Timestamp now = Timestamp.valueOf(LocalDateTime.now());
             user = new UserEntity(null,
                     newUser.getEmail(),
                     UserRoleEnum.CLIENT,
                     UserStatusEnum.ACTIVE,
-                    Timestamp.valueOf(LocalDateTime.now()),
+                    now,
                     null,
-                    null,
+                    now,
                     newUser.getPassword());
             user = userRepository.save(user);
         }
@@ -52,35 +53,14 @@ public class UserService {
         return retUser;
     }
 
-/*
-    public UserResponseDto getUser(UserDto user){
-        UserResponseDto retUser = new UserResponseDto();
-        UserEntity userEntity = userRepository.findUserByEmail(user.getEmail());
-        if (userEntity != null) {
-            retUser = mappers.convertToUserResponseDto(userEntity);
-        }
-        return retUser;
-    }
-*/
-/*
-    public UserResponseDto getUserById(Long userId){
-        UserResponseDto retUser = new UserResponseDto();
-        UserEntity userEntity = userRepository.findById(userId).orElse(null);
-        if (userEntity != null) {
-            retUser = mappers.convertToUserResponseDto(userEntity);
-        }
-
-        return retUser;
-    }
-*/
-
-    public UserResponseDto updateUser(UserRequestUpdateStatusDto updateUser) {
+    public UserResponseDto updateUser(UserRequestUpdateDto updateUser) {
 
         UserEntity user = userRepository.findUserByEmail(updateUser.getEmail());
         UserResponseDto retUser = new UserResponseDto();
 
         if (user != null && user.getEmail().equals(updateUser.getEmail())){
             user.setStatus(updateUser.getStatus());
+            user.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
             user = userRepository.save(user);
 
             if(user != null && user.getEmail().equals(updateUser.getEmail())) {
@@ -89,53 +69,19 @@ public class UserService {
         }
         return retUser;
     }
-
-/*
-    public Boolean deleteUser(UserRequestDto delUser){
-        UserEntity user = userRepository.findUserByEmail(delUser.getEmail());
-        Boolean ret = true;
-
-        if (user != null && user.getEmail().equals(delUser.getEmail())){
-            userRepository.delete(user);
-
-            user = userRepository.findUserByEmail(delUser.getEmail());
-            if (user != null && user.getEmail().equals(delUser.getEmail())){
-                ret = false;
-            }
-        } else {
-            ret = false;
-        }
-        return ret;
-    }
-*/
     public Boolean deleteUser(String email){
-        UserEntity user = userRepository.findUserByEmail(email);
-        Boolean ret = true;
+        UserEntity user = userRepository.findUserNotAdminNotDeletedByEmail(email);
+        Boolean ret;
 
-        if (user != null && user.getEmail().equals(email)){
-            userRepository.delete(user);
+        if (user != null) {
+            user.setStatus(UserStatusEnum.DELETED);
+            user.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
+            user = userRepository.save(user);
 
-            user = userRepository.findUserByEmail(email);
-            if (user != null && user.getEmail().equals(email)){
-                ret = false;
-            }
-        } else {
-            ret = false;
-        }
-
-        return ret;
-    }
-
-/*
-    public Boolean deleteUser(Long userId){
-        UserEntity user = userRepository.findById(userId).orElse(null);
-        Boolean ret = true;
-
-        if (user != null){
-            userRepository.delete(user);
-
-            user = userRepository.findById(userId).orElse(null);
-            if (user != null){
+            if (user != null && user.getStatus() != null &&
+                    user.getStatus() == UserStatusEnum.DELETED){
+                ret = true;
+            } else {
                 ret = false;
             }
         } else {
@@ -143,7 +89,6 @@ public class UserService {
         }
         return ret;
     }
-*/
 
     public List<UserCopyEntityDto> getAllUsers(){
         List<UserCopyEntityDto> usersCopy = new ArrayList<>();
@@ -153,12 +98,4 @@ public class UserService {
         }
         return usersCopy;
     }
-
-/*
-    public List<UserCopyEntityDto> getAllUsers1(){
-        List<UserEntity> users = userRepository.findAll();
-        List<UserCopyEntityDto> usersCopy = MapperUtil.convertList(users, mappers::convertToUserCopyDto);
-        return usersCopy;
-    }
-*/
 }

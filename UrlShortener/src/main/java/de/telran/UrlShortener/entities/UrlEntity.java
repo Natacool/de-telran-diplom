@@ -38,7 +38,7 @@ public class UrlEntity {
     @Column(name = "DeleteAfter", nullable = false)
     private Long deleteAfterDays;
 
-    @ManyToOne //(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "UserID")
     private UserEntity user;
 
