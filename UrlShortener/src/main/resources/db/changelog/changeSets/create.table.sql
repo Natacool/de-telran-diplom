@@ -14,7 +14,6 @@ create table Urls(
     Favorite BOOL default false
 );
 
-
 -- changeset Natacool:Users
 create table Users(
 	UserID BIGINT primary key auto_increment NOT NULL,
