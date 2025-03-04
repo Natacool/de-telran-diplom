@@ -25,7 +25,7 @@ public class StatisticService {
     private final UserRepository userRepository;
     private final Mappers mappers;
 
-    @Async
+    //@Async
     public List<StatisticGeneratingUrlResponseDto> getGeneratedUrlsStatistic(StatisticGeneratingUrlRequestDto requestDto){
         List<StatisticGeneratingUrlResponseDto> generatedUrls = new ArrayList<>();
 
@@ -67,7 +67,7 @@ public class StatisticService {
         return generatedUrls;
     }
 
-    @Async
+    //@Async
     public List<StatisticClickedUrlResponseDto> getClickedUrlsStatistic(StatisticClickedUrlRequestDto requestDto){
         List<StatisticClickedUrlResponseDto> clickedUrls = new ArrayList<>();
 
@@ -104,7 +104,7 @@ public class StatisticService {
         return clickedUrls;
     }
 
-    @Async
+    //@Async
     public List<StatisticUserResponseDto> getUsersStatistic(StatisticUserRequestDto requestUsers){
         List<StatisticUserResponseDto> usersInfo = new ArrayList<>();
 

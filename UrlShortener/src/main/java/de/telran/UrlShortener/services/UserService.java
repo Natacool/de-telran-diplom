@@ -23,6 +23,7 @@ public class UserService {
 
     public UserResponseDto createUser(UserRequestDto newUser){
         UserEntity user = userRepository.findUserByEmail(newUser.getEmail());
+        boolean userExist = false;
         if (user == null) {
             Timestamp now = Timestamp.valueOf(LocalDateTime.now());
             user = new UserEntity(null,
@@ -34,12 +35,17 @@ public class UserService {
                     now,
                     newUser.getPassword());
             user = userRepository.save(user);
+        } else {
+            userExist = true;
         }
 
-        UserResponseDto retUser = new UserResponseDto();
 
+        UserResponseDto retUser = new UserResponseDto();
         if (user != null) {
             retUser = mappers.convertToUserResponseDto(user);
+            if (userExist) {
+                retUser.setPasswordHash("");
+            }
         }
         return retUser;
     }
@@ -63,7 +69,8 @@ public class UserService {
             user.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
             user = userRepository.save(user);
 
-            if(user != null && user.getEmail().equals(updateUser.getEmail())) {
+            if(user != null && user.getEmail().equals(updateUser.getEmail()) &&
+                user.getStatus() == updateUser.getStatus()) {
                 retUser = mappers.convertToUserResponseDto(user);
             }
         }
