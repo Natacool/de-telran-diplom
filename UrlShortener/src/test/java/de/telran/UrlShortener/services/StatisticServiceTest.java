@@ -37,15 +37,72 @@ class StatisticServiceTest {
     void setUp() {
     }
 
+
+/*
+        String periodDays = "365";
+        if (requestDto.getPeriodDays() != null && requestDto.getPeriodDays() > 0){
+            periodDays = requestDto.getPeriodDays().toString();
+        }
+
+        String orderBy = "Urls.CreatedAt";
+        if (requestDto.getSortByUser() != null && requestDto.getSortByUser() == true){
+            orderBy = "Urls.UserID";
+        }
+
+        String descent = "";
+        if (requestDto.getDescent() != null && requestDto.getDescent() == true){
+            descent = "DESC";
+        }
+
+        String limitTop = "";
+        if (requestDto.getLimitTop() != null && requestDto.getLimitTop() > 0){
+            limitTop = " limit " + requestDto.getLimitTop();
+        }
+
+
+ */
+
+
+
+
+
+
     @Test
     void getGeneratedUrlsStatistic() {
         //List<StatisticGeneratingUrlResponseDto> getGeneratedUrlsStatistic(StatisticGeneratingUrlRequestDto requestDto
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     @Test
     void getClickedUrlsStatistic() {
         //List<StatisticClickedUrlResponseDto> getClickedUrlsStatistic(StatisticClickedUrlRequestDto requestDto
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     @Test
     void getUsersStatistic() {

@@ -11,6 +11,7 @@ import de.telran.UrlShortener.entities.enums.UserRoleEnum;
 import de.telran.UrlShortener.entities.enums.UserStatusEnum;
 import de.telran.UrlShortener.repositories.UrlRepository;
 import de.telran.UrlShortener.repositories.UserRepository;
+import de.telran.UrlShortener.utils.common.CommonUtils;
 import de.telran.UrlShortener.utils.generator.ShortUrlGenerator;
 import de.telran.UrlShortener.utils.mapper.Mappers;
 import jakarta.persistence.*;
@@ -42,7 +43,8 @@ class UrlServiceTest {
     @Mock
     private ShortUrlGenerator urlGeneratorMock;
 
-
+    @Mock
+    private CommonUtils utilsMock;
 
     @InjectMocks
     private UrlService urlServiceTest;
@@ -62,82 +64,10 @@ class UrlServiceTest {
     private String longUrl = "https://www.google.com";
     private LongUrlDto longUrlDto;
 
+    private Timestamp now;
+
     @BeforeEach
     void setUp() {
-        userEntity1 = new UserEntity(
-                1L,
-                "client1@example.com",
-                UserRoleEnum.CLIENT,
-                UserStatusEnum.ACTIVE,
-                Timestamp.valueOf(LocalDateTime.now()),
-                null,
-                Timestamp.valueOf(LocalDateTime.now()),
-                "12345"
-        );
-
-        userEntity2 = new UserEntity(
-                2L,
-                "admin2@example.com",
-                UserRoleEnum.ADMIN,
-                UserStatusEnum.ACTIVE,
-                Timestamp.valueOf(LocalDateTime.now()),
-                null,
-                Timestamp.valueOf(LocalDateTime.now()),
-                "54321"
-        );
-
-        urlEntity1 = new UrlEntity(
-                1L,
-                "google",
-                "https://www.google.com",
-                Timestamp.valueOf(LocalDateTime.now()),
-                null,
-                0L,
-                7L,
-                userEntity1,
-                null,
-                false
-        );
-
-        urlEntity2 = new UrlEntity(
-                2L,
-                "wiki",
-                "https://en.wikipedia.org/",
-                Timestamp.valueOf(LocalDateTime.now()),
-                Timestamp.valueOf(LocalDateTime.now()),
-                3L,
-                10L,
-                userEntity2,
-                Timestamp.valueOf(LocalDateTime.now()),
-                false
-        );
-
-        urlCopyEntityDto1 = new UrlCopyEntityDto(
-                1L,
-                "google",
-                "https://www.google.com",
-                Timestamp.valueOf(LocalDateTime.now()),
-                null,
-                0L,
-                7L,
-                userEntity1.getUserId(),
-                null,
-                false
-        );
-
-        urlCopyEntityDto2 = new UrlCopyEntityDto(
-                2L,
-                "wiki",
-                "https://en.wikipedia.org/",
-                Timestamp.valueOf(LocalDateTime.now()),
-                Timestamp.valueOf(LocalDateTime.now()),
-                3L,
-                10L,
-                userEntity2.getUserId(),
-                Timestamp.valueOf(LocalDateTime.now()),
-                false
-        );
-
         shortUrlIdDto = new ShortUrlIdDto(
                 "google"
         );
@@ -151,6 +81,83 @@ class UrlServiceTest {
                 "https://www.google.com"
         );
 
+        now = Timestamp.valueOf(LocalDateTime.now());
+
+        userEntity1 = new UserEntity(
+                1L,
+                "client1@example.com",
+                UserRoleEnum.CLIENT,
+                UserStatusEnum.ACTIVE,
+                now,
+                null,
+                now,
+                "12345"
+        );
+
+        userEntity2 = new UserEntity(
+                2L,
+                "admin2@example.com",
+                UserRoleEnum.ADMIN,
+                UserStatusEnum.ACTIVE,
+                now,
+                null,
+                now,
+                "54321"
+        );
+
+        urlEntity1 = new UrlEntity(
+                1L,
+                "google",
+                "https://www.google.com",
+                now,
+                null,
+                0L,
+                7L,
+                userEntity1,
+                null,
+                false
+        );
+
+        urlEntity2 = new UrlEntity(
+                2L,
+                "wiki",
+                "https://en.wikipedia.org/",
+                now,
+                now,
+                3L,
+                10L,
+                userEntity2,
+                now,
+                false
+        );
+
+        urlCopyEntityDto1 = new UrlCopyEntityDto(
+                1L,
+                "google",
+                "https://www.google.com",
+                now,
+                null,
+                0L,
+                7L,
+                userEntity1.getUserId(),
+                null,
+                false
+        );
+
+        urlCopyEntityDto2 = new UrlCopyEntityDto(
+                2L,
+                "wiki",
+                "https://en.wikipedia.org/",
+                now,
+                now,
+                3L,
+                10L,
+                userEntity2.getUserId(),
+                now,
+                false
+        );
+
+
     }
 
 
@@ -160,29 +167,56 @@ class UrlServiceTest {
     // urlEntity = urlRepository.save(urlEntity), savedUrlEntity != urlEntity
     // shortUrl = ""
     @Test
-    void getGeneratedUrl() {
-        //urlServiceTest.getGeneratedUrl();
-
+    void getGeneratedUrlSaveWrong() {
         UrlEntity saved = new UrlEntity(
-                1L,
-                "google",
-                "https://www.google.com",
-                Timestamp.valueOf(LocalDateTime.now()),
+                2L,
+                "wiki",
+                "https://en.wikipedia.org/",
+                now,
                 null,
                 0L,
                 7L,
-                userEntity1,
+                null,
                 null,
                 false
         );
 
         when(urlRepositoryMock.findByLongUrlNative(any(String.class))).thenReturn(null);
+        when(utilsMock.getCurrentTimestamp()).thenReturn(now);
         when(urlGeneratorMock.generateShortUrl2()).thenReturn(String.valueOf("google"));
-        when(urlRepositoryMock.save(urlEntity1)).thenReturn(urlEntity2);
+        when(utilsMock.getHomeUrl()).thenReturn(String.valueOf("localhost:8080"));
+        when(urlRepositoryMock.save(any(UrlEntity.class))).thenReturn(urlEntity2);
 
         String actual = urlServiceTest.getGeneratedUrl(longUrlDto);
 
         verify(urlRepositoryMock, times(1)).findByLongUrlNative(any(String.class));
+        verify(utilsMock, times(1)).getCurrentTimestamp();
+        verify(urlGeneratorMock, times(1)).generateShortUrl2();
+        verify(utilsMock, times(1)).getHomeUrl();
+        verify(urlRepositoryMock, times(1)).save(any(UrlEntity.class));
+
+        assertNotNull(actual);
+        assertEquals("", actual);
+
+    }
+
+    // findByLongUrlNative(longUrl.getUrl()), urlEntity = null
+    // urlEntity = urlRepository.save(urlEntity), savedUrlEntity = null
+    // shortUrl = ""
+    @Test
+    void getGeneratedUrlNullSave() {
+        when(urlRepositoryMock.findByLongUrlNative(any(String.class))).thenReturn(null);
+        when(utilsMock.getCurrentTimestamp()).thenReturn(now);
+        when(urlGeneratorMock.generateShortUrl2()).thenReturn(String.valueOf("google"));
+        when(utilsMock.getHomeUrl()).thenReturn(String.valueOf("localhost:8080"));
+        when(urlRepositoryMock.save(any(UrlEntity.class))).thenReturn(null);
+
+        String actual = urlServiceTest.getGeneratedUrl(longUrlDto);
+
+        verify(urlRepositoryMock, times(1)).findByLongUrlNative(any(String.class));
+        verify(utilsMock, times(1)).getCurrentTimestamp();
+        verify(urlGeneratorMock, times(1)).generateShortUrl2();
+        verify(utilsMock, times(1)).getHomeUrl();
         verify(urlRepositoryMock, times(1)).save(any(UrlEntity.class));
 
         assertNotNull(actual);
@@ -190,36 +224,138 @@ class UrlServiceTest {
     }
 
 
+
+
+
     // findByLongUrlNative(longUrl.getUrl()), urlEntity = null
     // urlEntity = urlRepository.save(urlEntity), savedUrlEntity = urlEntity
     // shortUrl = homeURL + "/" + urlEntity.getShortUrlId();
     @Test
-    void getGeneratedUrl1() {
+    void getGeneratedUrl() {
+
         UrlEntity saved = new UrlEntity(
-                1L,
+                urlEntity1.getUrlId(),
                 "google",
-                "https://www.google.com",
-                Timestamp.valueOf(LocalDateTime.now()),
+                longUrlDto.getUrl(),
+                now, // now()
                 null,
                 0L,
                 7L,
-                userEntity1,
+                null,
                 null,
                 false
         );
 
         when(urlRepositoryMock.findByLongUrlNative(any(String.class))).thenReturn(null);
-        when(urlRepositoryMock.save(urlEntity1)).thenReturn(saved);
+        when(utilsMock.getCurrentTimestamp()).thenReturn(now);
+        when(urlGeneratorMock.generateShortUrl2()).thenReturn(String.valueOf("google"));
+        when(utilsMock.getHomeUrl()).thenReturn(String.valueOf("localhost:8080"));
+        when(urlRepositoryMock.save(any(UrlEntity.class))).thenReturn(saved);
 
         String actual = urlServiceTest.getGeneratedUrl(longUrlDto);
 
         verify(urlRepositoryMock, times(1)).findByLongUrlNative(any(String.class));
+        verify(utilsMock, times(1)).getCurrentTimestamp();
+        verify(urlGeneratorMock, times(1)).generateShortUrl2();
+        verify(utilsMock, times(1)).getHomeUrl();
         verify(urlRepositoryMock, times(1)).save(any(UrlEntity.class));
 
         assertNotNull(actual);
-        assertEquals(shortUrlId, actual);
+        assertEquals("localhost:8080/google", actual);
+
+
 
     }
+
+    // findByLongUrlNative(longUrl.getUrl()), urlEntity = null
+    // urlEntity = urlRepository.save(urlEntity), savedUrlEntity != null
+    // saved.getShortUrlId() != urlEntity.getShortUrlId()
+    // shortUrl = homeURL + "/" + urlEntity.getShortUrlId();
+    @Test
+    void getGeneratedUrlSaveShortUrlWrong() {
+        //Timestamp now = Timestamp.valueOf(LocalDateTime.now());
+
+        UrlEntity saved = new UrlEntity(
+                urlEntity1.getUrlId(),
+                "google1",
+                longUrlDto.getUrl(),
+                now, // now()
+                null,
+                0L,
+                7L,
+                null,
+                null,
+                false
+        );
+
+        when(urlRepositoryMock.findByLongUrlNative(any(String.class))).thenReturn(null);
+        when(utilsMock.getCurrentTimestamp()).thenReturn(now);
+        when(urlGeneratorMock.generateShortUrl2()).thenReturn(String.valueOf("google"));
+        when(utilsMock.getHomeUrl()).thenReturn(String.valueOf("localhost:8080"));
+        when(urlRepositoryMock.save(any(UrlEntity.class))).thenReturn(saved);
+
+        String actual = urlServiceTest.getGeneratedUrl(longUrlDto);
+
+        verify(urlRepositoryMock, times(1)).findByLongUrlNative(any(String.class));
+        verify(utilsMock, times(1)).getCurrentTimestamp();
+        verify(urlGeneratorMock, times(1)).generateShortUrl2();
+        verify(utilsMock, times(1)).getHomeUrl();
+        verify(urlRepositoryMock, times(1)).save(any(UrlEntity.class));
+
+        assertNotNull(actual);
+        assertEquals("", actual);
+
+
+    }
+
+
+    // findByLongUrlNative(longUrl.getUrl()), urlEntity = null
+    // urlEntity = urlRepository.save(urlEntity), savedUrlEntity != null
+    // saved.getShortUrlId() = urlEntity.getShortUrlId()
+    // saved.getLongUrl() != urlEntity.getLongUrl()
+    // shortUrl = homeURL + "/" + urlEntity.getShortUrlId();
+    @Test
+    void getGeneratedUrlSaveLongUrlWrong() {
+        //Timestamp now = Timestamp.valueOf(LocalDateTime.now());
+
+        UrlEntity saved = new UrlEntity(
+                urlEntity1.getUrlId(),
+                "google",
+                longUrlDto.getUrl() + "/11",
+                now, // now()
+                null,
+                0L,
+                7L,
+                null,
+                null,
+                false
+        );
+
+        when(urlRepositoryMock.findByLongUrlNative(any(String.class))).thenReturn(null);
+        when(utilsMock.getCurrentTimestamp()).thenReturn(now);
+        when(urlGeneratorMock.generateShortUrl2()).thenReturn(String.valueOf("google"));
+        when(utilsMock.getHomeUrl()).thenReturn(String.valueOf("localhost:8080"));
+        when(urlRepositoryMock.save(any(UrlEntity.class))).thenReturn(saved);
+
+        String actual = urlServiceTest.getGeneratedUrl(longUrlDto);
+
+        verify(urlRepositoryMock, times(1)).findByLongUrlNative(any(String.class));
+        verify(utilsMock, times(1)).getCurrentTimestamp();
+        verify(urlGeneratorMock, times(1)).generateShortUrl2();
+        verify(utilsMock, times(1)).getHomeUrl();
+        verify(urlRepositoryMock, times(1)).save(any(UrlEntity.class));
+
+        assertNotNull(actual);
+        assertEquals("", actual);
+
+
+    }
+
+
+
+
+
+
 
 
 
@@ -227,30 +363,29 @@ class UrlServiceTest {
     // findByLongUrlNative(longUrl.getUrl()), urlEntity != null
     // shortUrl = homeURL + "/" + urlEntity.getShortUrlId();
     @Test
-    void getGeneratedUrl2() {
-        UrlEntity saved = new UrlEntity(
-                1L,
-                "google",
-                "https://www.google.com",
-                Timestamp.valueOf(LocalDateTime.now()),
-                null,
-                0L,
-                7L,
-                userEntity1,
-                null,
-                false
-        );
-
+    void getGeneratedUrlNotNullFind() {
         when(urlRepositoryMock.findByLongUrlNative(any(String.class))).thenReturn(urlEntity1);
-        when(urlRepositoryMock.save(urlEntity1)).thenReturn(saved);
+        //when(urlGeneratorMock.getCurrentTimestamp()).thenReturn(now);
+        //when(urlGeneratorMock.generateShortUrl2()).thenReturn(String.valueOf("google"));
+        when(utilsMock.getHomeUrl()).thenReturn(String.valueOf("localhost:8080"));
+        //when(urlRepositoryMock.save(any(UrlEntity.class))).thenReturn(null);
 
         String actual = urlServiceTest.getGeneratedUrl(longUrlDto);
 
         verify(urlRepositoryMock, times(1)).findByLongUrlNative(any(String.class));
+        verify(utilsMock, times(0)).getCurrentTimestamp();
+        verify(urlGeneratorMock, times(0)).generateShortUrl2();
+        verify(utilsMock, times(1)).getHomeUrl();
         verify(urlRepositoryMock, times(0)).save(any(UrlEntity.class));
 
         assertNotNull(actual);
-        assertEquals(shortUrlId, actual);
+        assertEquals("localhost:8080/google", actual);
+
+//        when(urlGeneratorMock.getCurrentTimestamp()).thenReturn(now);
+//        verify(urlGeneratorMock, times(1)).getCurrentTimestamp();
+
+
+
 
 
     }
@@ -286,18 +421,214 @@ class UrlServiceTest {
                 1L,
                 "google",
                 "https://www.google.com",
-                Timestamp.valueOf(LocalDateTime.now()),
-                null,
-                0L,
+                now,
+                now,
+                1L,
                 7L,
                 userEntity1,
                 null,
                 false
         );
 
+        when(urlRepositoryMock.findByShortUrlIdNative(any(String.class))).thenReturn(urlEntity1);
+        when(utilsMock.getCurrentTimestamp()).thenReturn(now);
+        when(urlRepositoryMock.save(any(UrlEntity.class))).thenReturn(saved);
+
+        String actual = urlServiceTest.getRedirectUrl(shortUrlId);
+
+        verify(urlRepositoryMock, times(1)).findByShortUrlIdNative(any(String.class));
+        verify(utilsMock, times(1)).getCurrentTimestamp();
+        verify(urlRepositoryMock, times(1)).save(any(UrlEntity.class));
+
+        assertNotNull(actual);
+        assertEquals(longUrl, actual);
+
+
+//        when(urlGeneratorMock.getCurrentTimestamp()).thenReturn(now);
+//        verify(urlGeneratorMock, times(1)).getCurrentTimestamp();
+
+
+
+    }
+
+
+    // findByShortUrlIdNative(shortUrlId), urlEntity = null
+    // urlEntity.getLongUrl() != null
+    // urlEntity.getClickAmount() != null
+    // urlEntity = urlRepository.save(urlEntity),
+    // (urlEntity == null || (urlEntity != null &&  (urlEntity.getLongUrl() == null || !urlEntity.getLongUrl().equals(longUrl))))
+    //    longUrl ="";
+
+    // (urlEntity != null && (urlEntity.getClickAmount() == null || urlEntity.getClickAmount() != plusOneClick))
+    // error
+
+    // (urlEntity != null && (urlEntity.getClickedAt() == null || urlEntity.getClickedAt() != now))
+    // error
+    @Test
+    void getRedirectUrlNullFind() {
+        UrlEntity saved = new UrlEntity(
+                1L,
+                "google",
+                "https://www.google.com",
+                now,
+                now,
+                1L,
+                7L,
+                userEntity1,
+                null,
+                false
+        );
+
+        when(urlRepositoryMock.findByShortUrlIdNative(any(String.class))).thenReturn(null);
+        //when(urlRepositoryMock.save(any(UrlEntity.class))).thenReturn(saved);
+
+        String actual = urlServiceTest.getRedirectUrl(shortUrlId);
+
+        verify(urlRepositoryMock, times(1)).findByShortUrlIdNative(any(String.class));
+        verify(urlRepositoryMock, times(0)).save(any(UrlEntity.class));
+
+        assertNotNull(actual);
+        assertEquals("", actual);
+    }
+
+
+    // findByShortUrlIdNative(shortUrlId), urlEntity != null
+    // urlEntity.getLongUrl() = null
+    // urlEntity.getClickAmount() != null
+    // urlEntity = urlRepository.save(urlEntity),
+    // (urlEntity == null || (urlEntity != null &&  (urlEntity.getLongUrl() == null || !urlEntity.getLongUrl().equals(longUrl))))
+    //    longUrl ="";
+
+    // (urlEntity != null && (urlEntity.getClickAmount() == null || urlEntity.getClickAmount() != plusOneClick))
+    // error
+
+    // (urlEntity != null && (urlEntity.getClickedAt() == null || urlEntity.getClickedAt() != now))
+    // error
+    @Test
+    void getRedirectUrlNullLongUrl() {
+        UrlEntity found = new UrlEntity(
+                1L,
+                "google",
+                null,
+                now,
+                now,
+                1L,
+                7L,
+                userEntity1,
+                null,
+                false
+        );
+
+        UrlEntity saved = new UrlEntity(
+                1L,
+                "google",
+                "https://www.google.com",
+                now,
+                now,
+                1L,
+                7L,
+                userEntity1,
+                null,
+                false
+        );
+
+        when(urlRepositoryMock.findByShortUrlIdNative(any(String.class))).thenReturn(found);
+        //when(urlRepositoryMock.save(any(UrlEntity.class))).thenReturn(saved);
+
+        String actual = urlServiceTest.getRedirectUrl(shortUrlId);
+
+        verify(urlRepositoryMock, times(1)).findByShortUrlIdNative(any(String.class));
+        verify(urlRepositoryMock, times(0)).save(any(UrlEntity.class));
+
+        assertNotNull(actual);
+        assertEquals("", actual);
+    }
+
+
+    // findByShortUrlIdNative(shortUrlId), urlEntity != null
+    // urlEntity.getLongUrl() != null
+    // urlEntity.getClickAmount() = null
+    // urlEntity = urlRepository.save(urlEntity),
+    // (urlEntity == null || (urlEntity != null &&  (urlEntity.getLongUrl() == null || !urlEntity.getLongUrl().equals(longUrl))))
+    //    longUrl ="";
+
+    // (urlEntity != null && (urlEntity.getClickAmount() == null || urlEntity.getClickAmount() != plusOneClick))
+    // error
+
+    // (urlEntity != null && (urlEntity.getClickedAt() == null || urlEntity.getClickedAt() != now))
+    // error
+    @Test
+    void getRedirectUrlFindNullClickAmount() {
+        UrlEntity found = new UrlEntity(
+                1L,
+                "google",
+                "https://www.google.com",
+                now,
+                now,
+                null,
+                7L,
+                userEntity1,
+                null,
+                false
+        );
+        UrlEntity saved = new UrlEntity(
+                1L,
+                "google",
+                "https://www.google.com",
+                now,
+                now,
+                1L,
+                7L,
+                userEntity1,
+                null,
+                false
+        );
+
+        when(urlRepositoryMock.findByShortUrlIdNative(any(String.class))).thenReturn(found);
+        when(utilsMock.getCurrentTimestamp()).thenReturn(now);
+        when(urlRepositoryMock.save(any(UrlEntity.class))).thenReturn(saved);
+
+        String actual = urlServiceTest.getRedirectUrl(shortUrlId);
+
+        verify(urlRepositoryMock, times(1)).findByShortUrlIdNative(any(String.class));
+        verify(utilsMock, times(1)).getCurrentTimestamp();
+        verify(urlRepositoryMock, times(1)).save(any(UrlEntity.class));
+
+        assertNotNull(actual);
+        assertEquals(longUrl, actual);
+    }
+
+
+    // findByShortUrlIdNative(shortUrlId), urlEntity != null
+    // urlEntity.getLongUrl() != null
+    // urlEntity.getClickAmount() != null
+    // urlEntity = urlRepository.save(urlEntity),  urlEntity = null
+
+    // (urlEntity == null || (urlEntity != null &&  (urlEntity.getLongUrl() == null || !urlEntity.getLongUrl().equals(longUrl))))
+    //    longUrl ="";
+
+    // (urlEntity != null && (urlEntity.getClickAmount() == null || urlEntity.getClickAmount() != plusOneClick))
+    // error
+
+    // (urlEntity != null && (urlEntity.getClickedAt() == null || urlEntity.getClickedAt() != now))
+    // error
+    @Test
+    void getRedirectUrlNullSave() {
+        UrlEntity saved = new UrlEntity(
+                1L,
+                "google",
+                "https://www.google.com",
+                now,
+                now,
+                1L,
+                7L,
+                userEntity1,
+                null,
+                false
+        );
 
         when(urlRepositoryMock.findByShortUrlIdNative(any(String.class))).thenReturn(urlEntity1);
-        when(urlRepositoryMock.save(any(UrlEntity.class))).thenReturn(saved);
+        when(urlRepositoryMock.save(any(UrlEntity.class))).thenReturn(null);
 
         String actual = urlServiceTest.getRedirectUrl(shortUrlId);
 
@@ -305,8 +636,278 @@ class UrlServiceTest {
         verify(urlRepositoryMock, times(1)).save(any(UrlEntity.class));
 
         assertNotNull(actual);
+        assertEquals("", actual);
+    }
+
+    // findByShortUrlIdNative(shortUrlId), urlEntity != null
+    // urlEntity.getLongUrl() != null
+    // urlEntity.getClickAmount() != null
+    // urlEntity = urlRepository.save(urlEntity), --> urlEntity.getLongUrl() == null
+    // (urlEntity == null || (urlEntity != null &&  (urlEntity.getLongUrl() == null || !urlEntity.getLongUrl().equals(longUrl))))
+    //    longUrl ="";
+
+    // (urlEntity != null && (urlEntity.getClickAmount() == null || urlEntity.getClickAmount() != plusOneClick))
+    // error
+
+    // (urlEntity != null && (urlEntity.getClickedAt() == null || urlEntity.getClickedAt() != now))
+    // error
+    @Test
+    void getRedirectUrlSaveNullLongUrl() {
+        UrlEntity saved = new UrlEntity(
+                2L,
+                "wiki",
+                null, //"https://en.wikipedia.org/",
+                now,
+                now,
+                4L,
+                10L,
+                userEntity2,
+                now,
+                false
+        );
+
+        when(urlRepositoryMock.findByShortUrlIdNative(any(String.class))).thenReturn(urlEntity2);
+        when(utilsMock.getCurrentTimestamp()).thenReturn(now);
+        when(urlRepositoryMock.save(any(UrlEntity.class))).thenReturn(saved);
+
+        String actual = urlServiceTest.getRedirectUrl(shortUrlId);
+
+        verify(urlRepositoryMock, times(1)).findByShortUrlIdNative(any(String.class));
+        verify(utilsMock, times(1)).getCurrentTimestamp();
+        verify(urlRepositoryMock, times(1)).save(any(UrlEntity.class));
+
+        assertNotNull(actual);
+        assertEquals("", actual);
+    }
+
+
+
+    // findByShortUrlIdNative(shortUrlId), urlEntity != null
+    // urlEntity.getLongUrl() != null
+    // urlEntity.getClickAmount() != null
+    // urlEntity = urlRepository.save(urlEntity),  -->  urlEntity.getLongUrl() != longUrl
+    // (urlEntity == null || (urlEntity != null &&  (urlEntity.getLongUrl() == null || !urlEntity.getLongUrl().equals(longUrl))))
+    //    longUrl ="";
+
+    // (urlEntity != null && (urlEntity.getClickAmount() == null || urlEntity.getClickAmount() != plusOneClick))
+    // error
+
+    // (urlEntity != null && (urlEntity.getClickedAt() == null || urlEntity.getClickedAt() != now))
+    // error
+    @Test
+    void getRedirectUrlSaveLongUrlWrong() {
+        UrlEntity saved = new UrlEntity(
+                2L,
+                "wiki",
+                "https://www.google.com",
+                now,
+                now,
+                4L,
+                10L,
+                userEntity2,
+                now,
+                false
+        );
+
+        when(urlRepositoryMock.findByShortUrlIdNative(any(String.class))).thenReturn(urlEntity2);
+        when(utilsMock.getCurrentTimestamp()).thenReturn(now);
+        when(urlRepositoryMock.save(any(UrlEntity.class))).thenReturn(saved);
+
+        String actual = urlServiceTest.getRedirectUrl(shortUrlId);
+
+        verify(urlRepositoryMock, times(1)).findByShortUrlIdNative(any(String.class));
+        verify(utilsMock, times(1)).getCurrentTimestamp();
+        verify(urlRepositoryMock, times(1)).save(any(UrlEntity.class));
+
+        assertNotNull(actual);
+        assertEquals("", actual);
+    }
+
+
+    // findByShortUrlIdNative(shortUrlId), urlEntity != null
+    // urlEntity.getLongUrl() != null
+    // urlEntity.getClickAmount() != null
+    // urlEntity = urlRepository.save(urlEntity), --> urlEntity.getClickAmount() = null
+    // (urlEntity == null || (urlEntity != null &&  (urlEntity.getLongUrl() == null || !urlEntity.getLongUrl().equals(longUrl))))
+    //    longUrl ="";
+
+    // (urlEntity != null && (urlEntity.getClickAmount() == null || urlEntity.getClickAmount() != plusOneClick))
+    // error
+
+    // (urlEntity != null && (urlEntity.getClickedAt() == null || urlEntity.getClickedAt() != now))
+    // error
+    @Test
+    void getRedirectUrlSaveNullClickAmount() {
+        UrlEntity saved = new UrlEntity(
+                2L,
+                "wiki",
+                "https://en.wikipedia.org/",
+                now,
+                now,
+                null, //4L
+                10L,
+                userEntity2,
+                now,
+                false
+        );
+
+        when(urlRepositoryMock.findByShortUrlIdNative(any(String.class))).thenReturn(urlEntity2);
+        when(utilsMock.getCurrentTimestamp()).thenReturn(now);
+        when(urlRepositoryMock.save(any(UrlEntity.class))).thenReturn(saved);
+
+        String actual = urlServiceTest.getRedirectUrl(shortUrlId);
+
+        verify(urlRepositoryMock, times(1)).findByShortUrlIdNative(any(String.class));
+        verify(utilsMock, times(1)).getCurrentTimestamp();
+        verify(urlRepositoryMock, times(1)).save(any(UrlEntity.class));
+
+        assertNotNull(actual);
+        assertEquals("https://en.wikipedia.org/", actual);
+    }
+
+
+    // findByShortUrlIdNative(shortUrlId), urlEntity != null
+    // urlEntity.getLongUrl() != null
+    // urlEntity.getClickAmount() != null
+    // urlEntity = urlRepository.save(urlEntity),  --> urlEntity.getClickAmount() != plusOneClick
+    // (urlEntity == null || (urlEntity != null &&  (urlEntity.getLongUrl() == null || !urlEntity.getLongUrl().equals(longUrl))))
+    //    longUrl ="";
+
+    // (urlEntity != null && (urlEntity.getClickAmount() == null || urlEntity.getClickAmount() != plusOneClick))
+    // error
+
+    // (urlEntity != null && (urlEntity.getClickedAt() == null || urlEntity.getClickedAt() != now))
+    // error
+    @Test
+    void getRedirectUrlSaveClickAmountNotChanged() {
+        //Timestamp.valueOf(LocalDateTime.now())
+        UrlEntity saved = new UrlEntity(
+                2L,
+                "wiki",
+                "https://en.wikipedia.org/",
+                now,
+                now,
+                3L,
+                10L,
+                userEntity2,
+                now,
+                false
+        );
+
+        when(urlRepositoryMock.findByShortUrlIdNative(any(String.class))).thenReturn(urlEntity2);
+        when(utilsMock.getCurrentTimestamp()).thenReturn(now);
+        when(urlRepositoryMock.save(any(UrlEntity.class))).thenReturn(saved);
+
+        String actual = urlServiceTest.getRedirectUrl(shortUrlId);
+
+        verify(urlRepositoryMock, times(1)).findByShortUrlIdNative(any(String.class));
+        verify(utilsMock, times(1)).getCurrentTimestamp();
+        verify(urlRepositoryMock, times(1)).save(any(UrlEntity.class));
+
+        assertNotNull(actual);
+        assertEquals("https://en.wikipedia.org/", actual);
+    }
+
+
+    // findByShortUrlIdNative(shortUrlId), urlEntity != null
+    // urlEntity.getLongUrl() != null
+    // urlEntity.getClickAmount() != null
+    // urlEntity = urlRepository.save(urlEntity), --> urlEntity.getClickedAt() = null
+    // (urlEntity == null || (urlEntity != null &&  (urlEntity.getLongUrl() == null || !urlEntity.getLongUrl().equals(longUrl))))
+    //    longUrl ="";
+
+    // (urlEntity != null && (urlEntity.getClickAmount() == null || urlEntity.getClickAmount() != plusOneClick))
+    // error
+
+    // (urlEntity != null && (urlEntity.getClickedAt() == null || urlEntity.getClickedAt() != now))
+    // error
+    @Test
+    void getRedirectUrlSaveNullClickedAt() {
+        //Timestamp.valueOf(LocalDateTime.now())
+        UrlEntity saved = new UrlEntity(
+                1L,
+                "google",
+                "https://www.google.com",
+                now,
+                null,
+                1L,
+                7L,
+                userEntity1,
+                null,
+                false
+        );
+
+        when(urlRepositoryMock.findByShortUrlIdNative(any(String.class))).thenReturn(urlEntity1);
+        when(utilsMock.getCurrentTimestamp()).thenReturn(now);
+        when(urlRepositoryMock.save(any(UrlEntity.class))).thenReturn(saved);
+
+        String actual = urlServiceTest.getRedirectUrl(shortUrlId);
+
+        verify(urlRepositoryMock, times(1)).findByShortUrlIdNative(any(String.class));
+        verify(utilsMock, times(1)).getCurrentTimestamp();
+        verify(urlRepositoryMock, times(1)).save(any(UrlEntity.class));
+
+        assertNotNull(actual);
         assertEquals(longUrl, actual);
     }
+
+
+    // findByShortUrlIdNative(shortUrlId), urlEntity != null
+    // urlEntity.getLongUrl() != null
+    // urlEntity.getClickAmount() != null
+    // urlEntity = urlRepository.save(urlEntity), --> urlEntity.getClickedAt() = now !!!! - still NOT working
+    // (urlEntity == null || (urlEntity != null &&  (urlEntity.getLongUrl() == null || !urlEntity.getLongUrl().equals(longUrl))))
+    //    longUrl ="";
+
+    // (urlEntity != null && (urlEntity.getClickAmount() == null || urlEntity.getClickAmount() != plusOneClick))
+    // error
+
+    // (urlEntity != null && (urlEntity.getClickedAt() == null || urlEntity.getClickedAt() != now))
+    // error
+    @Test
+    void getRedirectUrlSaveClickedAtWrong() {
+        //Timestamp.valueOf(LocalDateTime.now())
+
+        UrlEntity saved = new UrlEntity(
+                1L,
+                "google",
+                "https://www.google.com",
+                now,
+                Timestamp.valueOf(LocalDateTime.now()),
+                1L,
+                7L,
+                userEntity1,
+                null,
+                false
+        );
+
+        when(urlRepositoryMock.findByShortUrlIdNative(any(String.class))).thenReturn(urlEntity1);
+        when(utilsMock.getCurrentTimestamp()).thenReturn(now);
+        when(urlRepositoryMock.save(any(UrlEntity.class))).thenReturn(saved);
+
+        String actual = urlServiceTest.getRedirectUrl(shortUrlId);
+
+        verify(urlRepositoryMock, times(1)).findByShortUrlIdNative(any(String.class));
+        verify(utilsMock, times(1)).getCurrentTimestamp();
+        verify(urlRepositoryMock, times(1)).save(any(UrlEntity.class));
+
+        assertNotNull(actual);
+        assertEquals(longUrl, actual);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     // urlRepository.findByShortUrlIdNative, urlEntity != null
@@ -344,7 +945,7 @@ class UrlServiceTest {
                 1L,
                 "google",
                 null,
-                Timestamp.valueOf(LocalDateTime.now()),
+                now,
                 null,
                 0L,
                 7L,
@@ -407,7 +1008,7 @@ class UrlServiceTest {
                 1L,
                 null,
                 "https://www.google.com",
-                Timestamp.valueOf(LocalDateTime.now()),
+                now,
                 null,
                 0L,
                 7L,
@@ -505,7 +1106,7 @@ class UrlServiceTest {
         UrlEntity urlEntity = urlRepository.findByShortUrlIdNative(updateUrl.getUrlId());
         if (urlEntity != null){
             urlEntity.setDeleteAfterDays(updateUrl.getNewTimer());
-            urlEntity.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
+            urlEntity.setUpdatedAt(now);
             urlEntity = urlRepository.save(urlEntity);
             if (urlEntity != null && urlEntity.getDeleteAfterDays() !=null &&
                     urlEntity.getDeleteAfterDays() == updateUrl.getNewTimer()) {
@@ -519,24 +1120,24 @@ class UrlServiceTest {
                 2L,
                 "wiki",
                 "https://en.wikipedia.org/",
-                Timestamp.valueOf(LocalDateTime.now()),
-                Timestamp.valueOf(LocalDateTime.now()),
+                now,
+                now,
                 3L,
                 urlRequestUpdateDeleteTimerDto2.getNewTimer(),
                 userEntity2,
-                Timestamp.valueOf(LocalDateTime.now()),
+                now,
                 false
         );
         UrlCopyEntityDto expected  = new UrlCopyEntityDto(
                 2L,
                 "wiki",
                 "https://en.wikipedia.org/",
-                Timestamp.valueOf(LocalDateTime.now()),
-                Timestamp.valueOf(LocalDateTime.now()),
+                now,
+                now,
                 3L,
                 urlRequestUpdateDeleteTimerDto2.getNewTimer(),
                 userEntity2.getUserId(),
-                Timestamp.valueOf(LocalDateTime.now()),
+                now,
                 false
         );
 
@@ -570,24 +1171,24 @@ class UrlServiceTest {
                 2L,
                 "wiki",
                 "https://en.wikipedia.org/",
-                Timestamp.valueOf(LocalDateTime.now()),
-                Timestamp.valueOf(LocalDateTime.now()),
+                now,
+                now,
                 3L,
                 urlRequestUpdateDeleteTimerDto2.getNewTimer(),
                 userEntity2,
-                Timestamp.valueOf(LocalDateTime.now()),
+                now,
                 false
         );
         UrlCopyEntityDto expected  = new UrlCopyEntityDto(
                 2L,
                 "wiki",
                 "https://en.wikipedia.org/",
-                Timestamp.valueOf(LocalDateTime.now()),
-                Timestamp.valueOf(LocalDateTime.now()),
+                now,
+                now,
                 3L,
                 urlRequestUpdateDeleteTimerDto2.getNewTimer(),
                 userEntity2.getUserId(),
-                Timestamp.valueOf(LocalDateTime.now()),
+                now,
                 false
         );
 
@@ -624,24 +1225,24 @@ class UrlServiceTest {
                 2L,
                 "wiki",
                 "https://en.wikipedia.org/",
-                Timestamp.valueOf(LocalDateTime.now()),
-                Timestamp.valueOf(LocalDateTime.now()),
+                now,
+                now,
                 3L,
                 urlRequestUpdateDeleteTimerDto2.getNewTimer(),
                 userEntity2,
-                Timestamp.valueOf(LocalDateTime.now()),
+                now,
                 false
         );
         UrlCopyEntityDto expected  = new UrlCopyEntityDto(
                 2L,
                 "wiki",
                 "https://en.wikipedia.org/",
-                Timestamp.valueOf(LocalDateTime.now()),
-                Timestamp.valueOf(LocalDateTime.now()),
+                now,
+                now,
                 3L,
                 urlRequestUpdateDeleteTimerDto2.getNewTimer(),
                 userEntity2.getUserId(),
-                Timestamp.valueOf(LocalDateTime.now()),
+                now,
                 false
         );
 
@@ -673,24 +1274,24 @@ class UrlServiceTest {
                 2L,
                 "wiki",
                 "https://en.wikipedia.org/",
-                Timestamp.valueOf(LocalDateTime.now()),
-                Timestamp.valueOf(LocalDateTime.now()),
+                now,
+                now,
                 3L,
                 null,
                 userEntity2,
-                Timestamp.valueOf(LocalDateTime.now()),
+                now,
                 false
         );
         UrlCopyEntityDto expected  = new UrlCopyEntityDto(
                 2L,
                 "wiki",
                 "https://en.wikipedia.org/",
-                Timestamp.valueOf(LocalDateTime.now()),
-                Timestamp.valueOf(LocalDateTime.now()),
+                now,
+                now,
                 3L,
                 urlRequestUpdateDeleteTimerDto2.getNewTimer(),
                 userEntity2.getUserId(),
-                Timestamp.valueOf(LocalDateTime.now()),
+                now,
                 false
         );
 
@@ -723,24 +1324,24 @@ class UrlServiceTest {
                 2L,
                 "wiki",
                 "https://en.wikipedia.org/",
-                Timestamp.valueOf(LocalDateTime.now()),
-                Timestamp.valueOf(LocalDateTime.now()),
+                now,
+                now,
                 3L,
                 10L,
                 userEntity2,
-                Timestamp.valueOf(LocalDateTime.now()),
+                now,
                 false
         );
         UrlCopyEntityDto expected  = new UrlCopyEntityDto(
                 2L,
                 "wiki",
                 "https://en.wikipedia.org/",
-                Timestamp.valueOf(LocalDateTime.now()),
-                Timestamp.valueOf(LocalDateTime.now()),
+                now,
+                now,
                 3L,
                 urlRequestUpdateDeleteTimerDto2.getNewTimer(),
                 userEntity2.getUserId(),
-                Timestamp.valueOf(LocalDateTime.now()),
+                now,
                 false
         );
 

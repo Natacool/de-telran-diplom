@@ -3,6 +3,7 @@ package de.telran.UrlShortener.services;
 import de.telran.UrlShortener.configure.MapperUtil;
 import de.telran.UrlShortener.dtos.*;
 import de.telran.UrlShortener.entities.UrlEntity;
+import de.telran.UrlShortener.utils.common.CommonUtils;
 import de.telran.UrlShortener.utils.mapper.Mappers;
 import de.telran.UrlShortener.repositories.UrlRepository;
 import de.telran.UrlShortener.utils.generator.ShortUrlGenerator;
@@ -23,12 +24,13 @@ public class UrlService {
     private final UrlRepository urlRepository;
     private final Mappers mappers;
     private final ShortUrlGenerator urlGenerator;
+    private final CommonUtils utils;
 
     public String getGeneratedUrl(LongUrlDto longUrl){
         UrlEntity urlEntity = urlRepository.findByLongUrlNative(longUrl.getUrl());
         String shortUrl = "";
         if (urlEntity == null){
-            Timestamp now = Timestamp.valueOf(LocalDateTime.now());
+            Timestamp now = utils.getCurrentTimestamp();
 
             shortUrl = urlGenerator.generateShortUrl2();
 
@@ -44,16 +46,21 @@ public class UrlService {
                     false
                     );
             UrlEntity saved = urlRepository.save(urlEntity);
-            String homeURL = ServletUriComponentsBuilder.fromCurrentContextPath().toUriString();
+            //String homeURL = ServletUriComponentsBuilder.fromCurrentContextPath().toUriString();
+            String homeURL = utils.getHomeUrl();
             shortUrl = homeURL + "/" + urlEntity.getShortUrlId();
 
-            if (saved != urlEntity)
+            if (saved == null || (saved != null
+                    && (saved.getShortUrlId() != urlEntity.getShortUrlId()
+                    || saved.getLongUrl() != urlEntity.getLongUrl()
+            )))
             {
                 shortUrl = "";
             }
         }
         else {
-            String homeURL = ServletUriComponentsBuilder.fromCurrentContextPath().toUriString();
+            //String homeURL = ServletUriComponentsBuilder.fromCurrentContextPath().toUriString();
+            String homeURL = utils.getHomeUrl();
             shortUrl = homeURL + "/" + urlEntity.getShortUrlId();
         }
         return shortUrl;
@@ -64,12 +71,15 @@ public class UrlService {
         UrlEntity urlEntity = urlRepository.findByShortUrlIdNative(shortUrlId);
         if (urlEntity != null && urlEntity.getLongUrl() != null){
             longUrl = urlEntity.getLongUrl();
-            Timestamp now = Timestamp.valueOf(LocalDateTime.now());
-            Long plusOneClick = 0L;
-            if (urlEntity.getClickAmount() != null) {
+            Timestamp now = utils.getCurrentTimestamp();
+            Long plusOneClick;
+            if (urlEntity.getClickAmount() == null) {
+                plusOneClick = 1L;
+            } else {
                 plusOneClick = urlEntity.getClickAmount()+1L;
-                urlEntity.setClickAmount(plusOneClick);
             }
+
+            urlEntity.setClickAmount(plusOneClick);
             urlEntity.setClickedAt(now);
 
             urlEntity = urlRepository.save(urlEntity);
@@ -79,11 +89,11 @@ public class UrlService {
             }
             if (urlEntity != null &&
                     (urlEntity.getClickAmount() == null || urlEntity.getClickAmount() != plusOneClick)) {
-                    log.error(" Click Amount for URL ID: "+ urlEntity.getUrlId() + " NOT updated");
+                    log.warn(" Click Amount for URL ID: "+ urlEntity.getUrlId() + " NOT updated");
             }
             if (urlEntity != null &&
                     (urlEntity.getClickedAt() == null || urlEntity.getClickedAt() != now)) {
-                log.error(" Date ClickedAt for URL ID: "+ urlEntity.getUrlId() + " NOT updated");
+                log.warn(" Date ClickedAt for URL ID: "+ urlEntity.getUrlId() + " NOT updated");
             }
         }
         return longUrl;
@@ -121,7 +131,8 @@ public class UrlService {
         UrlEntity urlEntity = urlRepository.findByShortUrlIdNative(updateUrl.getUrlId());
         if (urlEntity != null){
             urlEntity.setDeleteAfterDays(updateUrl.getNewTimer());
-            urlEntity.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
+            Timestamp now = utils.getCurrentTimestamp();
+            urlEntity.setUpdatedAt(now);
             urlEntity = urlRepository.save(urlEntity);
             if (urlEntity != null && urlEntity.getDeleteAfterDays() !=null &&
                     urlEntity.getDeleteAfterDays() == updateUrl.getNewTimer()) {
