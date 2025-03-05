@@ -1,5 +1,6 @@
 package de.telran.UrlShortener.dtos;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import de.telran.UrlShortener.entities.enums.UserRoleEnum;
 import de.telran.UrlShortener.entities.enums.UserStatusEnum;
 import lombok.AllArgsConstructor;
@@ -17,7 +18,13 @@ public class UserResponseDto { // todo: make this class as extension of UserOnly
     private UserRoleEnum role;
     private UserStatusEnum status;
     private Timestamp registeredAt;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Timestamp lastActiveAt; // ? should be taken as last generated short link
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Timestamp updatedAt;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String passwordHash;
 }

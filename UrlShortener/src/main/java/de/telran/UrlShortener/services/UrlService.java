@@ -1,10 +1,7 @@
 package de.telran.UrlShortener.services;
 
 import de.telran.UrlShortener.configure.MapperUtil;
-import de.telran.UrlShortener.dtos.LongUrlDto;
-import de.telran.UrlShortener.dtos.UrlCopyEntityDto;
-import de.telran.UrlShortener.dtos.ShortUrlIdDto;
-import de.telran.UrlShortener.dtos.UrlRequestUpdateDeleteTimerDto;
+import de.telran.UrlShortener.dtos.*;
 import de.telran.UrlShortener.entities.UrlEntity;
 import de.telran.UrlShortener.utils.mapper.Mappers;
 import de.telran.UrlShortener.repositories.UrlRepository;
@@ -16,6 +13,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -110,8 +108,11 @@ public class UrlService {
     }
 
     public List<UrlCopyEntityDto> getAllUrls(){
+        List<UrlCopyEntityDto> urlsCopy = new ArrayList<>();
         List<UrlEntity> urls = urlRepository.findAll();
-        List<UrlCopyEntityDto> urlsCopy = MapperUtil.convertList(urls, mappers::convertToUrlCopy);
+        if (urls != null && urls.size() > 0) {
+            urlsCopy = MapperUtil.convertList(urls, mappers::convertToUrlCopy);
+        }
         return urlsCopy;
     }
 
@@ -122,7 +123,8 @@ public class UrlService {
             urlEntity.setDeleteAfterDays(updateUrl.getNewTimer());
             urlEntity.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
             urlEntity = urlRepository.save(urlEntity);
-            if (urlEntity != null) {
+            if (urlEntity != null && urlEntity.getDeleteAfterDays() !=null &&
+                    urlEntity.getDeleteAfterDays() == updateUrl.getNewTimer()) {
                 ret = mappers.convertToUrlCopy(urlEntity);
             }
         }
