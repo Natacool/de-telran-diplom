@@ -8,6 +8,7 @@ import de.telran.UrlShortener.entities.UserEntity;
 import de.telran.UrlShortener.entities.enums.UserRoleEnum;
 import de.telran.UrlShortener.entities.enums.UserStatusEnum;
 import de.telran.UrlShortener.repositories.UserRepository;
+import de.telran.UrlShortener.utils.common.CommonUtils;
 import de.telran.UrlShortener.utils.mapper.Mappers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,6 +36,9 @@ class UserServiceTest {
     @InjectMocks
     private UserService userServiceTest;
 
+    @Mock
+    private CommonUtils utilsMock;
+
     private UserEntity userEntity1;
     private UserEntity userEntity2;
     private UserCopyEntityDto userCopyEntityDto1;
@@ -43,10 +47,13 @@ class UserServiceTest {
     private UserRequestUpdateDto userRequestUpdateDto1;
     private UserResponseDto userResponseDto1;
     private String testEmail;
+    private Timestamp now;
 
     @BeforeEach
     void setUp() {
         testEmail = "test@example.com";
+
+        now = Timestamp.valueOf(LocalDateTime.now());
 
         userEntity1 = new UserEntity(
                 1L,
@@ -166,11 +173,13 @@ class UserServiceTest {
         when(userRepositoryMock.findUserByEmail(any(String.class))).thenReturn(null);
         when(userRepositoryMock.save(any(UserEntity.class))).thenReturn(userEntity1);
         when(mappersMock.convertToUserResponseDto(any(UserEntity.class))).thenReturn(userResponseDto1);
+        when(utilsMock.getCurrentTimestamp()).thenReturn(now);
 
         UserResponseDto actualUser = userServiceTest.createUser(userRequestDto1);
         verify(userRepositoryMock, times(1)).findUserByEmail(any(String.class));
         verify(userRepositoryMock, times(1)).save(any(UserEntity.class));
         verify(mappersMock, times(1)).convertToUserResponseDto(any(UserEntity.class));
+        verify(utilsMock, times(1)).getCurrentTimestamp();
 
         assertNotNull(actualUser);
         assertNotNull(actualUser.getUserId());
@@ -191,11 +200,13 @@ class UserServiceTest {
     void createUserNullFindNullSave() {
         when(userRepositoryMock.findUserByEmail(any(String.class))).thenReturn(null);
         when(userRepositoryMock.save(any(UserEntity.class))).thenReturn(null);
+        when(utilsMock.getCurrentTimestamp()).thenReturn(now);
 
         UserResponseDto actualUser = userServiceTest.createUser(userRequestDto1);
         verify(userRepositoryMock, times(1)).findUserByEmail(any(String.class));
         verify(userRepositoryMock, times(1)).save(any(UserEntity.class));
         verify(mappersMock, times(0)).convertToUserResponseDto(any(UserEntity.class));
+        verify(utilsMock, times(1)).getCurrentTimestamp();
 
         assertNotNull(actualUser);
         assertNull(actualUser.getUserId());
@@ -271,11 +282,13 @@ class UserServiceTest {
         when(userRepositoryMock.findUserByEmail(any(String.class))).thenReturn(userEntity1);
         when(userRepositoryMock.save(any(UserEntity.class))).thenReturn(expectedEntity);
         when(mappersMock.convertToUserResponseDto(any(UserEntity.class))).thenReturn(expectedDto);
+        when(utilsMock.getCurrentTimestamp()).thenReturn(now);
 
         UserResponseDto actualUser = userServiceTest.updateUser(userRequestUpdateDto1);
         verify(userRepositoryMock, times(1)).findUserByEmail(any(String.class));
         verify(userRepositoryMock, times(1)).save(any(UserEntity.class));
         verify(mappersMock, times(1)).convertToUserResponseDto(any(UserEntity.class));
+        verify(utilsMock, times(1)).getCurrentTimestamp();
 
         assertNotNull(actualUser);
         assertNotNull(actualUser.getUserId());
@@ -352,11 +365,13 @@ class UserServiceTest {
     void updateUserNullSave() {
         when(userRepositoryMock.findUserByEmail(any(String.class))).thenReturn(userEntity1);
         when(userRepositoryMock.save(any(UserEntity.class))).thenReturn(null);
+        when(utilsMock.getCurrentTimestamp()).thenReturn(now);
 
         UserResponseDto actualUser = userServiceTest.updateUser(userRequestUpdateDto1);
         verify(userRepositoryMock, times(1)).findUserByEmail(any(String.class));
         verify(userRepositoryMock, times(1)).save(any(UserEntity.class));
         verify(mappersMock, times(0)).convertToUserResponseDto(any(UserEntity.class));
+        verify(utilsMock, times(1)).getCurrentTimestamp();
 
         assertNotNull(actualUser);
         assertNull(actualUser.getUserId());
@@ -387,11 +402,13 @@ class UserServiceTest {
 
         when(userRepositoryMock.findUserByEmail(any(String.class))).thenReturn(userEntity1);
         when(userRepositoryMock.save(any(UserEntity.class))).thenReturn(expectedEntity);
+        when(utilsMock.getCurrentTimestamp()).thenReturn(now);
 
         UserResponseDto actualUser = userServiceTest.updateUser(userRequestUpdateDto1);
         verify(userRepositoryMock, times(1)).findUserByEmail(any(String.class));
         verify(userRepositoryMock, times(1)).save(any(UserEntity.class));
         verify(mappersMock, times(0)).convertToUserResponseDto(any(UserEntity.class));
+        verify(utilsMock, times(1)).getCurrentTimestamp();
 
         assertNotNull(actualUser);
         assertNull(actualUser.getUserId());
@@ -424,11 +441,13 @@ class UserServiceTest {
 
         when(userRepositoryMock.findUserByEmail(any(String.class))).thenReturn(userEntity1);
         when(userRepositoryMock.save(any(UserEntity.class))).thenReturn(expectedEntity);
+        when(utilsMock.getCurrentTimestamp()).thenReturn(now);
 
         UserResponseDto actualUser = userServiceTest.updateUser(userRequestUpdateDto1);
         verify(userRepositoryMock, times(1)).findUserByEmail(any(String.class));
         verify(userRepositoryMock, times(1)).save(any(UserEntity.class));
         verify(mappersMock, times(0)).convertToUserResponseDto(any(UserEntity.class));
+        verify(utilsMock, times(1)).getCurrentTimestamp();
 
         assertNotNull(actualUser);
         assertNull(actualUser.getUserId());
@@ -458,10 +477,12 @@ class UserServiceTest {
 
         when(userRepositoryMock.findUserNotAdminNotDeletedByEmail(any(String.class))).thenReturn(userEntity1);
         when(userRepositoryMock.save(any(UserEntity.class))).thenReturn(saved);
+        when(utilsMock.getCurrentTimestamp()).thenReturn(now);
 
         boolean res = userServiceTest.deleteUser(userEntity1.getEmail());
         verify(userRepositoryMock, times(1)).findUserNotAdminNotDeletedByEmail(any(String.class));
         verify(userRepositoryMock, times(1)).save(any(UserEntity.class));
+        verify(utilsMock, times(1)).getCurrentTimestamp();
 
         assertTrue(res);
     }
@@ -484,10 +505,12 @@ class UserServiceTest {
     void deleteUserSaveReturnNull() {
         when(userRepositoryMock.findUserNotAdminNotDeletedByEmail(any(String.class))).thenReturn(userEntity1);
         when(userRepositoryMock.save(any(UserEntity.class))).thenReturn(null);
+        when(utilsMock.getCurrentTimestamp()).thenReturn(now);
 
         boolean res = userServiceTest.deleteUser(userEntity1.getEmail());
         verify(userRepositoryMock, times(1)).findUserNotAdminNotDeletedByEmail(any(String.class));
         verify(userRepositoryMock, times(1)).save(any(UserEntity.class));
+        verify(utilsMock, times(1)).getCurrentTimestamp();
 
         assertFalse(res);
     }
@@ -510,10 +533,13 @@ class UserServiceTest {
 
         when(userRepositoryMock.findUserNotAdminNotDeletedByEmail(any(String.class))).thenReturn(userEntity1);
         when(userRepositoryMock.save(any(UserEntity.class))).thenReturn(saved);
+        when(utilsMock.getCurrentTimestamp()).thenReturn(now);
+
 
         boolean res = userServiceTest.deleteUser(userEntity1.getEmail());
         verify(userRepositoryMock, times(1)).findUserNotAdminNotDeletedByEmail(any(String.class));
         verify(userRepositoryMock, times(1)).save(any(UserEntity.class));
+        verify(utilsMock, times(1)).getCurrentTimestamp();
 
         assertFalse(res);
     }
@@ -537,10 +563,12 @@ class UserServiceTest {
 
         when(userRepositoryMock.findUserNotAdminNotDeletedByEmail(any(String.class))).thenReturn(userEntity1);
         when(userRepositoryMock.save(any(UserEntity.class))).thenReturn(saved);
+        when(utilsMock.getCurrentTimestamp()).thenReturn(now);
 
         boolean res = userServiceTest.deleteUser(userEntity1.getEmail());
         verify(userRepositoryMock, times(1)).findUserNotAdminNotDeletedByEmail(any(String.class));
         verify(userRepositoryMock, times(1)).save(any(UserEntity.class));
+        verify(utilsMock, times(1)).getCurrentTimestamp();
 
         assertFalse(res);
     }
