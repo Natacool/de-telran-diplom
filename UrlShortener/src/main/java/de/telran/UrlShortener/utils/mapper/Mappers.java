@@ -1,8 +1,7 @@
 package de.telran.UrlShortener.utils.mapper;
 
 import de.telran.UrlShortener.dtos.*;
-import de.telran.UrlShortener.entities.UrlEntity;
-import de.telran.UrlShortener.entities.UserEntity;
+import de.telran.UrlShortener.entities.*;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
@@ -32,7 +31,6 @@ public class Mappers {
         return urlCopyDto;
     }
 
-
     public UserResponseDto convertToUserResponseDto(UserEntity userEntity) {
         if(userEntity==null) return new UserResponseDto();
 
@@ -45,38 +43,39 @@ public class Mappers {
         return userResponseDto;
     }
 
-    public StatisticClickedUrlResponseDto convertToStatisticClickedUrlResponseDto(UrlEntity urlEntity) {
+    public StatisticClickedUrlResponseDto
+    convertToStatisticClickedUrlResponseDto(UrlEntity urlEntity) {
         if(urlEntity == null) return new StatisticClickedUrlResponseDto();
 
-        //StatisticClickedUrlResponseDto clickedUrlsDto = modelMapper.map(urlEntity, StatisticClickedUrlResponseDto.class);
-        StatisticClickedUrlResponseDto clickedUrlsDto = new StatisticClickedUrlResponseDto();
+        StatisticClickedUrlResponseDto clickedUrlsDto =
+                new StatisticClickedUrlResponseDto();
         clickedUrlsDto.setShortUrl(urlEntity.getShortUrlId());
         clickedUrlsDto.setClickedAmount(urlEntity.getClickAmount());
-        //clickedUrlsDto.setUserId(urlEntity.getUser().getUserId());
         clickedUrlsDto.setLongUrl(urlEntity.getLongUrl());
 
         return clickedUrlsDto;
     }
 
-    public StatisticGeneratingUrlResponseDto convertToStatisticGeneratingUrlResponseDto(UrlEntity urlEntity) {
+    public StatisticGeneratingUrlResponseDto
+    convertToStatisticGeneratingUrlResponseDto(UrlEntity urlEntity) {
         if(urlEntity == null) return new StatisticGeneratingUrlResponseDto();
 
-        //StatisticGeneratingUrlResponseDto GeneratingUrlsDto = modelMapper.map(urlEntity, StatisticGeneratingUrlResponseDto.class);
-        StatisticGeneratingUrlResponseDto GeneratingUrlsDto = new StatisticGeneratingUrlResponseDto();
+        StatisticGeneratingUrlResponseDto GeneratingUrlsDto =
+                new StatisticGeneratingUrlResponseDto();
         GeneratingUrlsDto.setCreatedAt(urlEntity.getCreatedAt());
-        //GeneratingUrlsDto.setUserId(urlEntity.getUser().getUserId());
         GeneratingUrlsDto.setShortUrl(urlEntity.getShortUrlId());
         GeneratingUrlsDto.setLongUrl(urlEntity.getLongUrl());
 
         return GeneratingUrlsDto;
     }
 
-    public StatisticUserResponseDto convertToStatisticUserResponseDto(UserEntity userEntity) {
+    public StatisticUserResponseDto
+    convertToStatisticUserResponseDto(UserEntity userEntity) {
         if(userEntity == null) return new StatisticUserResponseDto();
 
-        //StatisticUserResponseDto usersDto = modelMapper.map(userEntity, StatisticUserResponseDto.class);
-        StatisticUserResponseDto usersDto = new StatisticUserResponseDto();
-        //usersDto.setUserId(userEntity.getUserId());
+        StatisticUserResponseDto usersDto = modelMapper.map(userEntity,
+                StatisticUserResponseDto.class);
+        usersDto.setUserId(userEntity.getUserId());
         usersDto.setUserEmail(userEntity.getEmail());
         usersDto.setRole(userEntity.getRole());
         usersDto.setStatus(userEntity.getStatus());
@@ -88,5 +87,23 @@ public class Mappers {
         usersDto.setClickedAmount(0L);
 
         return usersDto;
+    }
+
+    public StatisticGeneratedUrlDto
+    convertToStatisticGeneratedUrlDto(StatisticGeneratedUrlInterface inGenerated) {
+        if(inGenerated == null) return new StatisticGeneratedUrlDto();
+        return modelMapper.map(inGenerated, StatisticGeneratedUrlDto.class);
+    }
+
+    public StatisticClickedUrlDto
+    convertToStatisticClickedUrlDto(StatisticClickedUrlInterface inClicked) {
+        if(inClicked == null) return new StatisticClickedUrlDto();
+        return modelMapper.map(inClicked, StatisticClickedUrlDto.class);
+    }
+
+    public StatisticUserResponseDto
+    convertToStatisticUserResponseDto(StatisticUserInterface inUsers) {
+        if(inUsers == null) return new StatisticUserResponseDto();
+        return modelMapper.map(inUsers, StatisticUserResponseDto.class);
     }
 }

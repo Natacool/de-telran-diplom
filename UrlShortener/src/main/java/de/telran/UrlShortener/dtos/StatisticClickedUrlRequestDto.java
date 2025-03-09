@@ -4,16 +4,17 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 public class StatisticClickedUrlRequestDto {
-    private Long userId;
-    //private String userEmail;
+    private List<String> userEmails;
     // if periodDays = 0 - get overall, else clickedAmount for the period
-    private Long periodDays;
-    private Long limitTop;
+    private Integer periodDays;
+    private Integer amountTop;
     // if descent = true - non-popular first
-    private Boolean descent;
+    private Boolean notPopularFirst;
 
 }

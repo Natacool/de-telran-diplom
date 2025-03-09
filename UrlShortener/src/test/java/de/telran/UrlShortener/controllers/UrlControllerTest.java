@@ -16,14 +16,12 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 
 @WebMvcTest(UrlController.class)
 class UrlControllerTest {
@@ -32,7 +30,6 @@ class UrlControllerTest {
 
     @MockBean
     private UrlService urlServiceMock;
-
 
     ////////////////////////////////////////////////////////////////////
     // GENERATE SHORT URL
@@ -133,7 +130,6 @@ class UrlControllerTest {
         ;
     }
 
-
     @Test
     void redirectUrlBodyEmptyUrl() throws Exception {
         when(urlServiceMock.getRedirectUrl(any(String.class))).thenReturn(
@@ -163,9 +159,7 @@ class UrlControllerTest {
         );
 
         this.mockMvc.perform(get("/{urlId}", "google"))
-//                        .param("urlId", "google"))
                 .andDo(print())
-                //.andExpect(status().isMovedTemporarily()) .. DEPRECATED, but status is 302
                 .andExpect(redirectedUrl("https://www.google.com"))
         ;
     }
@@ -177,9 +171,7 @@ class UrlControllerTest {
         );
 
         this.mockMvc.perform(get("/{urlId}", "google"))
-//                        .param("urlId", "google"))
                 .andDo(print())
-                //.andExpect(status().isMovedTemporarily()) // DEPRECATED, but status is 302
                 .andExpect(redirectedUrl("/wrong/url/google"))
         ;
     }
@@ -191,9 +183,7 @@ class UrlControllerTest {
         );
 
         this.mockMvc.perform(get("/{urlId}", "google"))
-//                        .param("urlId", "google"))
                 .andDo(print())
-                //.andExpect(status().isMovedTemporarily()) .. DEPRECATED, but status is 302
                 .andExpect(redirectedUrl("/wrong/url/google"))
         ;
     }
@@ -206,10 +196,7 @@ class UrlControllerTest {
                 .param("urlId", "google"))
                 .andDo(print())
                 .andExpect(status().isNotFound())
-//                .andExpect(content().Redstring("URL: 'google' deleted"))
-//                .andExpect(content().string("URL: 'google' deleted"))
         ;
-
     }
 
     ////////////////////////////////////////////////////////////////////
@@ -231,7 +218,6 @@ class UrlControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string("URL: 'google' deleted"))
         ;
-
     }
 
     @Test
@@ -250,7 +236,6 @@ class UrlControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("Error: URL: 'google' NOT deleted"))
         ;
-
     }
 
     ////////////////////////////////////////////////////////////////////
@@ -277,7 +262,6 @@ class UrlControllerTest {
                 .andExpect(jsonPath("$..urlId").value(1))
                 .andExpect(jsonPath("$..shortUrl").value("google"))
                 .andExpect(jsonPath("$..longUrl").value("https://www.google.com"))
-                //.andExpect(jsonPath("$..clickedAt").value(null))
                 .andExpect(jsonPath("$..clickAmount").value(0))
                 .andExpect(jsonPath("$..deleteAfterDays").value(7))
                 .andExpect(jsonPath("$..userId").value(0))

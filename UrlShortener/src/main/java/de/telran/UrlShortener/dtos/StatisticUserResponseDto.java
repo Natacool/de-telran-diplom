@@ -8,19 +8,17 @@ import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
 
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 public class StatisticUserResponseDto {
-    private Long userId; //?
+    private Long userId;
     private String userEmail;
-    private UserRoleEnum role;
+    private Long generatedAmount;
+    private Long clickedAmount;
     private UserStatusEnum status;
+    private UserRoleEnum role;
     private Timestamp registeredAt;
     private Timestamp lastActiveAt;
     private Timestamp updatedAt;
-    //optional ?
-    private Long generatedAmount;
-    private Long clickedAmount;
 }

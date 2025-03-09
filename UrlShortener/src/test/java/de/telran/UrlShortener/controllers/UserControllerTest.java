@@ -1,63 +1,22 @@
 package de.telran.UrlShortener.controllers;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import de.telran.UrlShortener.dtos.*;
 import de.telran.UrlShortener.entities.enums.UserRoleEnum;
 import de.telran.UrlShortener.entities.enums.UserStatusEnum;
-//import de.telran.UrlShortener.services.StatisticService;
 import de.telran.UrlShortener.services.UserService;
-import org.hamcrest.core.IsNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
-//import org.springframework.test.web.servlet.MvcResult;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-//import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-//import org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
-//
-//
-//import com.fasterxml.jackson.core.JsonProcessingException;
-//import com.fasterxml.jackson.databind.ObjectMapper;
-////import de.telran.onlineshop.dto.CategoryDto;
-////import de.telran.onlineshop.security.configure.SecurityConfig;
-////import de.telran.onlineshop.security.jwt.JwtAuthentication;
-////import de.telran.onlineshop.security.jwt.JwtProvider;
-////import de.telran.onlineshop.service.CategoriesService;
-//import org.junit.jupiter.api.BeforeEach;
-//import org.junit.jupiter.api.Test;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-//import org.springframework.boot.test.mock.mockito.MockBean;
-//import org.springframework.context.annotation.ComponentScan;
-//import org.springframework.context.annotation.FilterType;
-//import org.springframework.context.annotation.Import;
-//import org.springframework.http.MediaType;
-////import org.springframework.security.test.context.support.WithMockUser;
-//import org.springframework.test.web.servlet.MockMvc;
-//import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-//import org.springframework.web.context.WebApplicationContext;
-//
-//import java.util.List;
-
-//import static org.junit.jupiter.api.Assertions.*;
-//import static org.mockito.ArgumentMatchers.*;
-//import static org.mockito.Mockito.verify;
-//import static org.mockito.Mockito.when;
-////import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
-////import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-//import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -212,8 +171,6 @@ class UserControllerTest {
                         ))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-//                .andExpect(jsonPath("$..userId").isNotEmpty())
-//                .andExpect(jsonPath("$..userId").value(1))
         ;
     }
 
@@ -279,8 +236,6 @@ class UserControllerTest {
         ;
     }
 
-
-
     ////////////////////////////////////////////////////////////////////
     // GET ALL USERs
     @Test
@@ -306,22 +261,7 @@ class UserControllerTest {
                 .andExpect(jsonPath("$..registeredAt").isNotEmpty())
                 .andExpect(jsonPath("$..passwordHash").isNotEmpty())
         ;
-
-
-
     }
-/*
-UserResponseDto
-    private Long userId;
-    private String email;
-    private UserRoleEnum role;
-    private UserStatusEnum status;
-    private Timestamp registeredAt;
-    private Timestamp lastActiveAt; // ? should be taken as last generated short link
-    private Timestamp updatedAt;
-    private String passwordHash;
-
- */
 
     ////////////////////////////////////////////////////////////////////
     // GET USER BY EMAIL
@@ -329,7 +269,6 @@ UserResponseDto
     @Test
     void getUserByEmail() throws Exception {
         String testEmail = "test@example.com";
-        //UserDto userDto = new UserDto(testEmail);
 
         when(userServiceMock.getUserByEmail(testEmail)).thenReturn(new UserResponseDto(
                         1L,
@@ -387,8 +326,6 @@ UserResponseDto
     @Test
     void getUserByEmailUserIdNull() throws Exception {
         String testEmail = "test@example.com";
-        //UserDto userDto = new UserDto(testEmail);
-        //Optional.ofNullable(null)
         when(userServiceMock.getUserByEmail(testEmail)).thenReturn(new UserResponseDto(
                 null,
                 null,
@@ -410,7 +347,6 @@ UserResponseDto
                         ))
                 .andDo(print())
                 .andExpect(status().isNotFound())
-//                .andExpect(jsonPath("$..userId").isEmpty())
         ;
     }
 
@@ -419,15 +355,6 @@ UserResponseDto
     // UserResponseDto != null & status = BLOCKED -> OK
     @Test
     void updateUserStatus() throws Exception {
-        String testEmail = "test@example.com";
-
-//        UserRequestUpdateDto updateUser1 = new UserRequestUpdateDto();
-//        UserRequestUpdateDto updateUser = new UserRequestUpdateDto(
-//                "test@example.com",
-//                UserStatusEnum.BLOCKED
-//        );
-
-        //when(userServiceMock.updateUser(updateUser)).thenReturn(new UserResponseDto(
         when(userServiceMock.updateUser(any(UserRequestUpdateDto.class))).thenReturn(new UserResponseDto(
                 1L,
                 "test@example.com",
@@ -455,25 +382,13 @@ UserResponseDto
                 .andExpect(jsonPath("$..userId").value(1))
                 .andExpect(jsonPath("$..email").value("test@example.com"))
                 .andExpect(jsonPath("$..email").isNotEmpty())
-//                .andExpect(jsonPath("$..role").value("CLIENT"))
                 .andExpect(jsonPath("$..status").value("BLOCKED"))
-//                .andExpect(jsonPath("$..registeredAt").isNotEmpty())
-//                .andExpect(jsonPath("$..passwordHash").isNotEmpty())
         ;
     }
 
     // UserResponseDto != null & status = Active -> fail
     @Test
     void updateUserStatusNotUpdated() throws Exception {
-        String testEmail = "test@example.com";
-
-//        UserRequestUpdateDto updateUser1 = new UserRequestUpdateDto();
-//        UserRequestUpdateDto updateUser = new UserRequestUpdateDto(
-//                "test@example.com",
-//                UserStatusEnum.BLOCKED
-//        );
-
-        //when(userServiceMock.updateUser(updateUser)).thenReturn(new UserResponseDto(
         when(userServiceMock.updateUser(any(UserRequestUpdateDto.class))).thenReturn(new UserResponseDto(
                 1L,
                 "test@example.com",
@@ -502,18 +417,13 @@ UserResponseDto
                 .andExpect(jsonPath("$..email").value("test@example.com"))
                 .andExpect(jsonPath("$..email").isNotEmpty())
                 .andExpect(jsonPath("$..status").isNotEmpty())
-//                .andExpect(jsonPath("$..role").value("CLIENT"))
                 .andExpect(jsonPath("$..status").value("ACTIVE"))
-//                .andExpect(jsonPath("$..registeredAt").isNotEmpty())
-//                .andExpect(jsonPath("$..passwordHash").isNotEmpty())
         ;
     }
 
     // UserResponseDto user = null
     @Test
     void updateUserStatusNull() throws Exception {
-        String testEmail = "test@example.com";
-
         when(userServiceMock.updateUser(any(UserRequestUpdateDto.class))).thenReturn(
                 null
         );
@@ -531,7 +441,6 @@ UserResponseDto
                 .andExpect(status().isBadRequest())
         ;
     }
-
 
     // user.getUserId() == null
     @Test
@@ -558,16 +467,12 @@ UserResponseDto
                         ))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-//                .andExpect(jsonPath("$..userId").isNotEmpty())
-//                .andExpect(jsonPath("$..userId").value(1))
         ;
     }
 
     // user.getEmail() == null
     @Test
     void updateUserStatusNullEmail() throws Exception {
-        String testEmail = "test@example.com";
-
         when(userServiceMock.updateUser(any(UserRequestUpdateDto.class))).thenReturn(new UserResponseDto(
                 1L,
                 null,
@@ -590,8 +495,6 @@ UserResponseDto
                         ))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-//                .andExpect(jsonPath("$..userId").isNotEmpty())
-//                .andExpect(jsonPath("$..userId").value(1))
         ;
     }
 
@@ -627,13 +530,9 @@ UserResponseDto
         ;
     }
 
-
-
     // user.getStatus() == null
     @Test
     void updateUserStatusNullStatus() throws Exception {
-        String testEmail = "test@example.com";
-
         when(userServiceMock.updateUser(any(UserRequestUpdateDto.class))).thenReturn(new UserResponseDto(
                 1L,
                 "test@example.com",
@@ -656,8 +555,6 @@ UserResponseDto
                         ))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-//                .andExpect(jsonPath("$..userId").isNotEmpty())
-//                .andExpect(jsonPath("$..userId").value(1))
         ;
     }
 

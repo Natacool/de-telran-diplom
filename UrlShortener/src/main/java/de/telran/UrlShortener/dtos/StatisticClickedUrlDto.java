@@ -1,17 +1,18 @@
 package de.telran.UrlShortener.dtos;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.sql.Timestamp;
-
-@AllArgsConstructor
-@NoArgsConstructor
 @Data
-public class StatisticGeneratingUrlResponseDto {
-    private String userEmail;
-    private Timestamp createdAt;
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class StatisticClickedUrlDto
+{
     private String shortUrl;
+    private Integer clicked;
+    private String client;
     private String longUrl;
 }
