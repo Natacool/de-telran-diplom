@@ -2,6 +2,7 @@ package de.telran.UrlShortener.controllers;
 
 import de.telran.UrlShortener.dtos.*;
 import de.telran.UrlShortener.services.UserService;
+import liquibase.util.StringUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,10 +20,15 @@ public class UserController {
     public ResponseEntity<UserResponseDto> createUser(@RequestBody UserRequestDto newUser) {
         UserResponseDto user = userService.createUser(newUser);
         HttpStatus status = HttpStatus.CREATED;
-        if (user.getUserId() == null) {
+        if (user == null ||
+                user.getUserId() == null ||
+                user.getPasswordHash() == null ||
+                user.getEmail() == null ||
+                !user.getEmail().equals(newUser.getEmail())) {
             status = HttpStatus.BAD_REQUEST;
+        } else if (user.getPasswordHash().equals("")) {
+            status = HttpStatus.CONFLICT;
         }
-
         return ResponseEntity.status(status).body(user);
     }
 
@@ -45,10 +51,17 @@ public class UserController {
     @PutMapping
     public ResponseEntity<UserResponseDto> updateUserStatus(@RequestBody UserRequestUpdateDto updUser) {
         UserResponseDto user = userService.updateUser(updUser);
-        HttpStatus status = HttpStatus.NOT_MODIFIED;
-        if (user != null && user.getUserId() != null){
-            status = HttpStatus.OK;
+        HttpStatus status = HttpStatus.OK;
+        if (user == null ||
+                user.getUserId() == null ||
+                user.getStatus() == null ||
+                user.getEmail() == null ||
+                !user.getEmail().equals(updUser.getEmail()) ){
+            status = HttpStatus.BAD_REQUEST;
+        } else if (user.getStatus() != updUser.getStatus()){
+            status = HttpStatus.NOT_MODIFIED;
         }
+
         return ResponseEntity.status(status).body(user);
     }
 

@@ -25,7 +25,11 @@ public class UrlController {
     public ResponseEntity<String> generateUrl(@RequestBody LongUrlDto longUrl) {
         String shortUrl = urlService.getGeneratedUrl(longUrl);
         // HttpStatus.OK is to avoid HttpStatus.FOUND/HttpStatus.CREATED
-        return ResponseEntity.status(HttpStatus.OK).body(shortUrl);
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        if (StringUtil.isNotEmpty(shortUrl)){
+            status = HttpStatus.OK;
+        }
+        return ResponseEntity.status(status).body(shortUrl);
     }
 
     @GetMapping(value = "/x")
@@ -100,9 +104,18 @@ public class UrlController {
     public ResponseEntity<UrlCopyEntityDto>
     updateUrlDeleteTimer(@RequestBody /*@Valid*/ UrlRequestUpdateDeleteTimerDto updateUrl) {
         UrlCopyEntityDto urlDto = urlService.updateCleanTimer(updateUrl);
-        HttpStatus status = HttpStatus.NOT_MODIFIED;
-        if (urlDto != null && urlDto.getUrlId() != null && urlDto.getUrlId() > 0){
-            status = HttpStatus.OK;
+        //HttpStatus status = HttpStatus.NOT_MODIFIED;
+//        if (urlDto != null && urlDto.getUrlId() != null && urlDto.getUrlId() > 0){
+//            //status = HttpStatus.OK;
+//        }
+        HttpStatus status = HttpStatus.OK;
+        if (urlDto == null ||
+                urlDto.getUrlId() == null ||
+                urlDto.getDeleteAfterDays() == null)
+        {
+            status = HttpStatus.BAD_REQUEST;
+        } else if (urlDto.getDeleteAfterDays() != updateUrl.getNewTimer()){
+            status = HttpStatus.NOT_MODIFIED;
         }
         return ResponseEntity.status(status).body(urlDto);
     }

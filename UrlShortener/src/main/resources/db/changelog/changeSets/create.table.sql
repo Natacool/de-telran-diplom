@@ -18,8 +18,8 @@ create table Urls(
 create table Users(
 	UserID BIGINT primary key auto_increment NOT NULL,
     Email VARCHAR(100) NOT NULL UNIQUE,
-    Role ENUM('CLIENT', 'ADMIN') NULL, -- default 'CLIENT'
-    Status ENUM('ACTIVE', 'BLOCKED', 'DELETED') NULL, -- default 'ACTIVE'
+    Role ENUM('CLIENT', 'ADMIN') NOT NULL, -- default 'CLIENT'
+    Status ENUM('ACTIVE', 'BLOCKED', 'DELETED') NOT NULL, -- default 'ACTIVE'
     RegisteredAt datetime NOT NULL,
 	LastActiveAt datetime, -- NOT NULL, -- can be get from last created url
     UpdatedAt datetime NULL,

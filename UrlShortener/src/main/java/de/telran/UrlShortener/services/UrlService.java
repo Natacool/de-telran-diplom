@@ -122,7 +122,8 @@ public class UrlService {
             urlEntity.setDeleteAfterDays(updateUrl.getNewTimer());
             urlEntity.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
             urlEntity = urlRepository.save(urlEntity);
-            if (urlEntity != null) {
+            if (urlEntity != null && urlEntity.getDeleteAfterDays() !=null &&
+                    urlEntity.getDeleteAfterDays() == updateUrl.getNewTimer()) {
                 ret = mappers.convertToUrlCopy(urlEntity);
             }
         }
