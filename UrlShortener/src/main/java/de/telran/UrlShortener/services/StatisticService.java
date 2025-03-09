@@ -34,7 +34,6 @@ public class StatisticService {
     public List<StatisticGeneratedUrlDto> getGeneratedUrlsStatistic(
             StatisticGeneratingUrlRequestDto requestDto){
         List<StatisticGeneratedUrlDto> generatedUrls = new ArrayList<>();
-
         List<String> userEmails = null;
         // && requestDto.getUserEmails().size() != 0){ -> this case used to get anonim
         if (requestDto.getUserEmails() != null) {
@@ -148,7 +147,7 @@ public class StatisticService {
         return clicked;
     }
 
-    @Async
+    //@Async
     public List<StatisticUserResponseDto> getUsersStatistic(StatisticUserRequestDto requestUsers){
         List<StatisticUserResponseDto> usersInfo = new ArrayList<>();
 
@@ -212,7 +211,6 @@ public class StatisticService {
                     periodStartDate,
                     topAmount
             );
-
         }
 
         if (findUsers != null) {
