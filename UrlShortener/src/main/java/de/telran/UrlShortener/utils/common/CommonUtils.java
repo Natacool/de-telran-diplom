@@ -20,4 +20,15 @@ public class CommonUtils {
         Timestamp now = Timestamp.valueOf(LocalDateTime.now());
         return now;
     }
+
+    public Timestamp getCurrentTimestampShiftDays(Integer days) {
+        Timestamp now;
+        if (days == null || days == 0) {
+            now = Timestamp.valueOf(LocalDateTime.now());
+        } else {
+            now = Timestamp.valueOf(LocalDateTime.now().plusDays(days));
+        }
+        return now;
+    }
+
 }

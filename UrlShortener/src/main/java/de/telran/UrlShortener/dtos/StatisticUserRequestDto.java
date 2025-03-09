@@ -12,11 +12,9 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 public class StatisticUserRequestDto {
-    //private List<String> userEmails;
-    private String userEmail;
+    private List<String> userEmails;
     private List<UserRoleEnum> userRoles;
     private List<UserStatusEnum> userStatuses;
-    private Integer periodGenerated;
-    private Integer periodClicked;
-    private Boolean onlyUserInfo;
+    private Integer periodDays;
+    private Integer amountTop;
 }

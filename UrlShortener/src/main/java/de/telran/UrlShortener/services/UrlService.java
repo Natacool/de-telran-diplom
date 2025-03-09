@@ -3,6 +3,7 @@ package de.telran.UrlShortener.services;
 import de.telran.UrlShortener.configure.MapperUtil;
 import de.telran.UrlShortener.dtos.*;
 import de.telran.UrlShortener.entities.UrlEntity;
+import de.telran.UrlShortener.entities.UserEntity;
 import de.telran.UrlShortener.utils.common.CommonUtils;
 import de.telran.UrlShortener.utils.mapper.Mappers;
 import de.telran.UrlShortener.repositories.UrlRepository;
@@ -10,10 +11,8 @@ import de.telran.UrlShortener.utils.generator.ShortUrlGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,19 +33,21 @@ public class UrlService {
 
             shortUrl = urlGenerator.generateShortUrl2();
 
+            UserEntity userEntity = new UserEntity();
+            userEntity.setUserId(0L);
+
             urlEntity = new UrlEntity(null,
                     shortUrl,
                     longUrl.getUrl(),
-                    now, // now()
+                    now,
                     null,
                     0L,
                     7L,
-                    null,
+                    userEntity,
                     null,
                     false
                     );
             UrlEntity saved = urlRepository.save(urlEntity);
-            //String homeURL = ServletUriComponentsBuilder.fromCurrentContextPath().toUriString();
             String homeURL = utils.getHomeUrl();
             shortUrl = homeURL + "/" + urlEntity.getShortUrlId();
 
@@ -59,7 +60,6 @@ public class UrlService {
             }
         }
         else {
-            //String homeURL = ServletUriComponentsBuilder.fromCurrentContextPath().toUriString();
             String homeURL = utils.getHomeUrl();
             shortUrl = homeURL + "/" + urlEntity.getShortUrlId();
         }

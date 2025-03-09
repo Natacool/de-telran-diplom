@@ -5,13 +5,13 @@ import de.telran.UrlShortener.dtos.*;
 import de.telran.UrlShortener.entities.UserEntity;
 import de.telran.UrlShortener.entities.enums.UserRoleEnum;
 import de.telran.UrlShortener.entities.enums.UserStatusEnum;
+import de.telran.UrlShortener.utils.common.CommonUtils;
 import de.telran.UrlShortener.utils.mapper.Mappers;
 import de.telran.UrlShortener.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,12 +20,13 @@ import java.util.List;
 public class UserService {
     private final UserRepository userRepository;
     private final Mappers mappers;
+    private final CommonUtils utils;
 
     public UserResponseDto createUser(UserRequestDto newUser){
         UserEntity user = userRepository.findUserByEmail(newUser.getEmail());
         boolean userExist = false;
         if (user == null) {
-            Timestamp now = Timestamp.valueOf(LocalDateTime.now());
+            Timestamp now = utils.getCurrentTimestamp();
             user = new UserEntity(null,
                     newUser.getEmail(),
                     UserRoleEnum.CLIENT,
@@ -38,7 +39,6 @@ public class UserService {
         } else {
             userExist = true;
         }
-
 
         UserResponseDto retUser = new UserResponseDto();
         if (user != null) {
@@ -66,7 +66,7 @@ public class UserService {
 
         if (user != null && user.getEmail().equals(updateUser.getEmail())){
             user.setStatus(updateUser.getStatus());
-            user.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
+            user.setUpdatedAt(utils.getCurrentTimestamp());
             user = userRepository.save(user);
 
             if(user != null && user.getEmail().equals(updateUser.getEmail()) &&
@@ -82,7 +82,7 @@ public class UserService {
 
         if (user != null) {
             user.setStatus(UserStatusEnum.DELETED);
-            user.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
+            user.setUpdatedAt(utils.getCurrentTimestamp());
             user = userRepository.save(user);
 
             if (user != null && user.getStatus() != null &&

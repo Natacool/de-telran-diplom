@@ -9,8 +9,6 @@ import de.telran.UrlShortener.entities.enums.UserRoleEnum;
 import de.telran.UrlShortener.entities.enums.UserStatusEnum;
 import de.telran.UrlShortener.repositories.UserRepository;
 import de.telran.UrlShortener.utils.mapper.Mappers;
-import jakarta.persistence.Column;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,9 +43,6 @@ class UserServiceTest {
     private UserRequestUpdateDto userRequestUpdateDto1;
     private UserResponseDto userResponseDto1;
     private String testEmail;
-//    private Timestamp registeredAt;
-//    private Timestamp lastActiveAt;
-//    private Timestamp updatedAt;
 
     @BeforeEach
     void setUp() {
@@ -116,38 +111,11 @@ class UserServiceTest {
                 Timestamp.valueOf(LocalDateTime.now()),
                 "****5"
         );
-
-
     }
-
-
-
-//    @AfterEach
-//    void tearDown() {
-//    }
-
-/*
-
-            when(userRepositoryMock.findAll()).thenReturn(null);
-//        when(mappersMock.convertToUserCopyDto(userEntity1)).thenReturn(userDto1);
-//        when(mappersMock.convertToUserCopyDto(userEntity2)).thenReturn(userDto2);
-
-        List<UserCopyEntityDto> actualUsers = userServiceTest.getAllUsers();
-
-        assertNotNull(actualUsers);
-        //assertTrue(actualUsers.size() > 0);
-        assertEquals(0, actualUsers.size());
-        verify(userRepositoryMock).findAll();
-        verify(userRepositoryMock, times(1)).findAll();
-        //verify(mappersMock).convertToUserCopyDto(any(UserEntity.class));
-        verify(mappersMock, times(0)).convertToUserCopyDto(any(UserEntity.class));
-  */
-
 
     // findUserByEmail() --> !NULL
     @Test
     void createUser() {
-        //UserResponseDto expected = userResponseDto1;
         UserResponseDto expected = new UserResponseDto(
                 1L,
                 "client1@example.com",
@@ -159,8 +127,6 @@ class UserServiceTest {
                 "****5"
         );
 
-
-        //expected.setPasswordHash("");
         when(userRepositoryMock.findUserByEmail(any(String.class))).thenReturn(userEntity1);
         when(mappersMock.convertToUserResponseDto(any(UserEntity.class))).thenReturn(userResponseDto1);
 
@@ -178,8 +144,6 @@ class UserServiceTest {
         assertEquals(expected.getEmail(), actualUser.getEmail());
         assertEquals(expected.getRole(), actualUser.getRole());
         assertEquals(expected.getStatus(), actualUser.getStatus());
-        //assertEquals(expected.getRegisteredAt(), actualUser.getRegisteredAt());
-        //assertEquals(expected.getUpdatedAt(), actualUser.getUpdatedAt());
         assertNotEquals(expected.getPasswordHash(), actualUser.getPasswordHash());
         assertEquals("", actualUser.getPasswordHash());
     }
@@ -188,7 +152,6 @@ class UserServiceTest {
     // save() --> !NULL
     @Test
     void createUserNullFind() {
-        //UserResponseDto expected = userResponseDto1;
         UserResponseDto expected = new UserResponseDto(
                 1L,
                 "client1@example.com",
@@ -218,34 +181,16 @@ class UserServiceTest {
         assertEquals(expected.getEmail(), actualUser.getEmail());
         assertEquals(expected.getRole(), actualUser.getRole());
         assertEquals(expected.getStatus(), actualUser.getStatus());
-//        assertEquals(expected.getRegisteredAt(), actualUser.getRegisteredAt());
-//        assertEquals(expected.getUpdatedAt(), actualUser.getUpdatedAt());
         assertNotEquals("", actualUser.getPasswordHash());
         assertEquals(expected.getPasswordHash(), actualUser.getPasswordHash());
-
-
     }
 
     // findUserByEmail() --> NULL
     // save() --> NULL
     @Test
     void createUserNullFindNullSave() {
-        //UserResponseDto expected = userResponseDto1;
-        UserResponseDto expected = new UserResponseDto(
-                1L,
-                "client1@example.com",
-                UserRoleEnum.CLIENT,
-                UserStatusEnum.ACTIVE,
-                Timestamp.valueOf(LocalDateTime.now()),
-                null,
-                Timestamp.valueOf(LocalDateTime.now()),
-                "****5"
-        );
-
-        //expected.setPasswordHash("");
         when(userRepositoryMock.findUserByEmail(any(String.class))).thenReturn(null);
         when(userRepositoryMock.save(any(UserEntity.class))).thenReturn(null);
-        //when(mappersMock.convertToUserResponseDto(any(UserEntity.class))).thenReturn(userResponseDto1);
 
         UserResponseDto actualUser = userServiceTest.createUser(userRequestDto1);
         verify(userRepositoryMock, times(1)).findUserByEmail(any(String.class));
@@ -256,25 +201,11 @@ class UserServiceTest {
         assertNull(actualUser.getUserId());
         assertNull(actualUser.getEmail());
         assertNull(actualUser.getPasswordHash());
-
-//        assertNotNull(actualUser.getUserId());
-//        assertNotNull(actualUser.getEmail());
-//        assertEquals(expected.getUserId(), actualUser.getUserId());
-//        assertEquals(expected.getEmail(), actualUser.getEmail());
-//        assertEquals(expected.getRole(), actualUser.getRole());
-//        assertEquals(expected.getStatus(), actualUser.getStatus());
-//        assertEquals(expected.getRegisteredAt(), actualUser.getRegisteredAt());
-//        assertEquals(expected.getUpdatedAt(), actualUser.getUpdatedAt());
-//        assertNotEquals(expected.getPasswordHash(), actualUser.getPasswordHash());
-//        assertEquals("", actualUser.getPasswordHash());
     }
-
 
     // userRepository.findUserByEmail() -->  !NULL
     @Test
     void getUserByEmail() {
-        //UserEntity expecteduserEntity = userEntity1;
-
         when(userRepositoryMock.findUserByEmail(userEntity1.getEmail())).thenReturn(userEntity1);
         when(mappersMock.convertToUserResponseDto(userEntity1)).thenReturn(userResponseDto1);
 
@@ -305,7 +236,6 @@ class UserServiceTest {
         assertNull(actualUser.getEmail());
     }
 
-
     // findUserByEmail --> !NULL
     // user.getEmail() = updateUser.getEmail()
     // save --> !NULL
@@ -315,7 +245,6 @@ class UserServiceTest {
     // mappers.convertToUserResponseDto
     @Test
     void updateUser() {
-        //UserResponseDto expected = userResponseDto1;
         UserResponseDto expectedDto = new UserResponseDto(
                 1L,
                 "client1@example.com",
@@ -359,45 +288,15 @@ class UserServiceTest {
         assertEquals(expectedDto.getEmail(), actualUser.getEmail());
         assertEquals(expectedDto.getRole(), actualUser.getRole());
         assertEquals(expectedDto.getStatus(), actualUser.getStatus());
-        //assertEquals(expected.getRegisteredAt(), actualUser.getRegisteredAt());
-        //assertEquals(expected.getUpdatedAt(), actualUser.getUpdatedAt());
         assertEquals(expectedDto.getPasswordHash(), actualUser.getPasswordHash());
         assertNotEquals("", actualUser.getPasswordHash());
-
     }
-
 
     // findUserByEmail --> NULL
     // no mapper
     @Test
     void updateUserNullFind() {
-        //UserResponseDto expected = userResponseDto1;
-        UserResponseDto expectedDto = new UserResponseDto(
-                1L,
-                "client1@example.com",
-                UserRoleEnum.CLIENT,
-                UserStatusEnum.BLOCKED,
-                Timestamp.valueOf(LocalDateTime.now()),
-                null,
-                Timestamp.valueOf(LocalDateTime.now()),
-                "****5"
-        );
-
-        UserEntity expectedEntity = new UserEntity(
-                1L,
-                "client1@example.com",
-                UserRoleEnum.CLIENT,
-                UserStatusEnum.BLOCKED,
-                Timestamp.valueOf(LocalDateTime.now()),
-                null,
-                Timestamp.valueOf(LocalDateTime.now()),
-                "12345"
-        );
-
-
         when(userRepositoryMock.findUserByEmail(any(String.class))).thenReturn(null);
-        //when(userRepositoryMock.save(any(UserEntity.class))).thenReturn(expectedEntity);
-        //when(mappersMock.convertToUserResponseDto(any(UserEntity.class))).thenReturn(expectedDto);
 
         UserResponseDto actualUser = userServiceTest.updateUser(userRequestUpdateDto1);
         verify(userRepositoryMock, times(1)).findUserByEmail(any(String.class));
@@ -411,16 +310,6 @@ class UserServiceTest {
         assertNull(actualUser.getStatus());
         assertNull(actualUser.getRegisteredAt());
         assertNull(actualUser.getUpdatedAt());
-//        assertEquals(expectedDto.getUserId(), actualUser.getUserId());
-//        assertEquals(expectedDto.getEmail(), actualUser.getEmail());
-//        assertEquals(expectedDto.getRole(), actualUser.getRole());
-//        assertEquals(expectedDto.getStatus(), actualUser.getStatus());
-        //assertEquals(expected.getRegisteredAt(), actualUser.getRegisteredAt());
-        //assertEquals(expected.getUpdatedAt(), actualUser.getUpdatedAt());
-//        assertEquals(expectedDto.getPasswordHash(), actualUser.getPasswordHash());
-//        assertNotEquals("", actualUser.getPasswordHash());
-
-
     }
 
     // findUserByEmail --> !NULL
@@ -428,18 +317,6 @@ class UserServiceTest {
     // no mapper
     @Test
     void updateUserFindEmailWrong() {
-        //UserResponseDto expected = userResponseDto1;
-        UserResponseDto expectedDto = new UserResponseDto(
-                1L,
-                "client1@example.com",
-                UserRoleEnum.CLIENT,
-                UserStatusEnum.BLOCKED,
-                Timestamp.valueOf(LocalDateTime.now()),
-                null,
-                Timestamp.valueOf(LocalDateTime.now()),
-                "****5"
-        );
-
         UserEntity expectedEntity = new UserEntity(
                 1L,
                 "not_client1@example.com",
@@ -451,10 +328,7 @@ class UserServiceTest {
                 "12345"
         );
 
-
         when(userRepositoryMock.findUserByEmail(any(String.class))).thenReturn(expectedEntity);
-        //when(userRepositoryMock.save(any(UserEntity.class))).thenReturn(expectedEntity);
-        //when(mappersMock.convertToUserResponseDto(any(UserEntity.class))).thenReturn(expectedDto);
 
         UserResponseDto actualUser = userServiceTest.updateUser(userRequestUpdateDto1);
         verify(userRepositoryMock, times(1)).findUserByEmail(any(String.class));
@@ -468,18 +342,7 @@ class UserServiceTest {
         assertNull(actualUser.getStatus());
         assertNull(actualUser.getRegisteredAt());
         assertNull(actualUser.getUpdatedAt());
-//        assertEquals(expectedDto.getUserId(), actualUser.getUserId());
-//        assertEquals(expectedDto.getEmail(), actualUser.getEmail());
-//        assertEquals(expectedDto.getRole(), actualUser.getRole());
-//        assertEquals(expectedDto.getStatus(), actualUser.getStatus());
-        //assertEquals(expected.getRegisteredAt(), actualUser.getRegisteredAt());
-        //assertEquals(expected.getUpdatedAt(), actualUser.getUpdatedAt());
-//        assertEquals(expectedDto.getPasswordHash(), actualUser.getPasswordHash());
-//        assertNotEquals("", actualUser.getPasswordHash());
-
     }
-
-
 
     // findUserByEmail --> !NULL
     // user.getEmail() = updateUser.getEmail()
@@ -487,33 +350,8 @@ class UserServiceTest {
     // no mapper
     @Test
     void updateUserNullSave() {
-        //UserResponseDto expected = userResponseDto1;
-        UserResponseDto expectedDto = new UserResponseDto(
-                1L,
-                "client1@example.com",
-                UserRoleEnum.CLIENT,
-                UserStatusEnum.BLOCKED,
-                Timestamp.valueOf(LocalDateTime.now()),
-                null,
-                Timestamp.valueOf(LocalDateTime.now()),
-                "****5"
-        );
-
-        UserEntity expectedEntity = new UserEntity(
-                1L,
-                "client1@example.com",
-                UserRoleEnum.CLIENT,
-                UserStatusEnum.BLOCKED,
-                Timestamp.valueOf(LocalDateTime.now()),
-                null,
-                Timestamp.valueOf(LocalDateTime.now()),
-                "12345"
-        );
-
-
         when(userRepositoryMock.findUserByEmail(any(String.class))).thenReturn(userEntity1);
         when(userRepositoryMock.save(any(UserEntity.class))).thenReturn(null);
-        //when(mappersMock.convertToUserResponseDto(any(UserEntity.class))).thenReturn(expectedDto);
 
         UserResponseDto actualUser = userServiceTest.updateUser(userRequestUpdateDto1);
         verify(userRepositoryMock, times(1)).findUserByEmail(any(String.class));
@@ -527,17 +365,7 @@ class UserServiceTest {
         assertNull(actualUser.getStatus());
         assertNull(actualUser.getRegisteredAt());
         assertNull(actualUser.getUpdatedAt());
-//        assertEquals(expectedDto.getUserId(), actualUser.getUserId());
-//        assertEquals(expectedDto.getEmail(), actualUser.getEmail());
-//        assertEquals(expectedDto.getRole(), actualUser.getRole());
-//        assertEquals(expectedDto.getStatus(), actualUser.getStatus());
-        //assertEquals(expected.getRegisteredAt(), actualUser.getRegisteredAt());
-        //assertEquals(expected.getUpdatedAt(), actualUser.getUpdatedAt());
-//        assertEquals(expectedDto.getPasswordHash(), actualUser.getPasswordHash());
-//        assertNotEquals("", actualUser.getPasswordHash());
-
     }
-
 
     // findUserByEmail --> !NULL
     // user.getEmail() = updateUser.getEmail()
@@ -546,18 +374,6 @@ class UserServiceTest {
     // no mapper
     @Test
     void updateUserSaveEmailWrong() {
-        //UserResponseDto expected = userResponseDto1;
-        UserResponseDto expectedDto = new UserResponseDto(
-                1L,
-                "client1@example.com",
-                UserRoleEnum.CLIENT,
-                UserStatusEnum.BLOCKED,
-                Timestamp.valueOf(LocalDateTime.now()),
-                null,
-                Timestamp.valueOf(LocalDateTime.now()),
-                "****5"
-        );
-
         UserEntity expectedEntity = new UserEntity(
                 1L,
                 "not_client1@example.com",
@@ -569,10 +385,8 @@ class UserServiceTest {
                 "12345"
         );
 
-
         when(userRepositoryMock.findUserByEmail(any(String.class))).thenReturn(userEntity1);
         when(userRepositoryMock.save(any(UserEntity.class))).thenReturn(expectedEntity);
-        //when(mappersMock.convertToUserResponseDto(any(UserEntity.class))).thenReturn(expectedDto);
 
         UserResponseDto actualUser = userServiceTest.updateUser(userRequestUpdateDto1);
         verify(userRepositoryMock, times(1)).findUserByEmail(any(String.class));
@@ -586,15 +400,6 @@ class UserServiceTest {
         assertNull(actualUser.getStatus());
         assertNull(actualUser.getRegisteredAt());
         assertNull(actualUser.getUpdatedAt());
-//        assertEquals(expectedDto.getUserId(), actualUser.getUserId());
-//        assertEquals(expectedDto.getEmail(), actualUser.getEmail());
-//        assertEquals(expectedDto.getRole(), actualUser.getRole());
-//        assertEquals(expectedDto.getStatus(), actualUser.getStatus());
-        //assertEquals(expected.getRegisteredAt(), actualUser.getRegisteredAt());
-        //assertEquals(expected.getUpdatedAt(), actualUser.getUpdatedAt());
-//        assertEquals(expectedDto.getPasswordHash(), actualUser.getPasswordHash());
-//        assertNotEquals("", actualUser.getPasswordHash());
-
     }
 
     // findUserByEmail --> !NULL
@@ -606,18 +411,6 @@ class UserServiceTest {
     // no mapper
     @Test
     void updateUserSaveStatusWrong() {
-        //UserResponseDto expected = userResponseDto1;
-        UserResponseDto expectedDto = new UserResponseDto(
-                1L,
-                "client1@example.com",
-                UserRoleEnum.CLIENT,
-                UserStatusEnum.BLOCKED,
-                Timestamp.valueOf(LocalDateTime.now()),
-                null,
-                Timestamp.valueOf(LocalDateTime.now()),
-                "****5"
-        );
-
         UserEntity expectedEntity = new UserEntity(
                 1L,
                 "client1@example.com",
@@ -629,10 +422,8 @@ class UserServiceTest {
                 "12345"
         );
 
-
         when(userRepositoryMock.findUserByEmail(any(String.class))).thenReturn(userEntity1);
         when(userRepositoryMock.save(any(UserEntity.class))).thenReturn(expectedEntity);
-        //when(mappersMock.convertToUserResponseDto(any(UserEntity.class))).thenReturn(expectedDto);
 
         UserResponseDto actualUser = userServiceTest.updateUser(userRequestUpdateDto1);
         verify(userRepositoryMock, times(1)).findUserByEmail(any(String.class));
@@ -646,19 +437,7 @@ class UserServiceTest {
         assertNull(actualUser.getStatus());
         assertNull(actualUser.getRegisteredAt());
         assertNull(actualUser.getUpdatedAt());
-//        assertEquals(expectedDto.getUserId(), actualUser.getUserId());
-//        assertEquals(expectedDto.getEmail(), actualUser.getEmail());
-//        assertEquals(expectedDto.getRole(), actualUser.getRole());
-//        assertEquals(expectedDto.getStatus(), actualUser.getStatus());
-        //assertEquals(expected.getRegisteredAt(), actualUser.getRegisteredAt());
-        //assertEquals(expected.getUpdatedAt(), actualUser.getUpdatedAt());
-//        assertEquals(expectedDto.getPasswordHash(), actualUser.getPasswordHash());
-//        assertNotEquals("", actualUser.getPasswordHash());
-
     }
-
-
-
 
     // findUserNotAdminNotDeletedByEmail --> !NULL
     // save --> !NULL
@@ -666,15 +445,6 @@ class UserServiceTest {
     // user.getStatus() --> expectedStatus
     @Test
     void deleteUser() {
-//        UserEntity user = userRepository.findUserNotAdminNotDeletedByEmail(email); null or !null
-//        user = userRepository.save(user);  null or !null
-//        UserEntity userEntityTest = userEntity1;
-//        UserEntity expecteduserEntity = userEntity1;
-//
-//        when(userRepositoryMock.findUserByEmail(testEmail)).thenReturn(userEntityTest);
-//        when(userRepositoryMock.save(userEntity1)).thenReturn(expecteduserEntity);
-
-        //UserEntity saved1 = userEntity1;
         UserEntity saved = new UserEntity(
                 1L,
                 "client1@example.com",
@@ -685,10 +455,6 @@ class UserServiceTest {
                 Timestamp.valueOf(LocalDateTime.now()),
                 "12345"
         );
-
-
-
-
 
         when(userRepositoryMock.findUserNotAdminNotDeletedByEmail(any(String.class))).thenReturn(userEntity1);
         when(userRepositoryMock.save(any(UserEntity.class))).thenReturn(saved);
@@ -698,63 +464,24 @@ class UserServiceTest {
         verify(userRepositoryMock, times(1)).save(any(UserEntity.class));
 
         assertTrue(res);
-//        assertNotNull(actualUser.getUserId());
-//        assertNotNull(actualUser.getEmail());
-//        assertEquals(expected.getUserId(), actualUser.getUserId());
-//        assertEquals(expected.getEmail(), actualUser.getEmail());
-//        assertEquals(expected.getRole(), actualUser.getRole());
-//        assertEquals(expected.getStatus(), actualUser.getStatus());
-//        assertEquals(expected.getRegisteredAt(), actualUser.getRegisteredAt());
-//        assertEquals(expected.getUpdatedAt(), actualUser.getUpdatedAt());
-//        assertNotEquals(expected.getPasswordHash(), actualUser.getPasswordHash());
-//        assertEquals("", actualUser.getPasswordHash());
     }
 
     // findUserNotAdminNotDeletedByEmail --> NULL
     @Test
     void deleteUserFindReturnNull() {
-        UserEntity saved1 = userEntity1;
-        //saved.setStatus(UserStatusEnum.DELETED);
-        UserEntity saved = new UserEntity(
-                1L,
-                "client1@example.com",
-                UserRoleEnum.CLIENT,
-                UserStatusEnum.DELETED,
-                Timestamp.valueOf(LocalDateTime.now()),
-                null,
-                Timestamp.valueOf(LocalDateTime.now()),
-                "12345"
-        );
         when(userRepositoryMock.findUserNotAdminNotDeletedByEmail(any(String.class))).thenReturn(null);
-        //when(userRepositoryMock.save(any(UserEntity.class))).thenReturn(saved);
 
         boolean res = userServiceTest.deleteUser(userEntity1.getEmail());
         verify(userRepositoryMock, times(1)).findUserNotAdminNotDeletedByEmail(any(String.class));
         verify(userRepositoryMock, times(0)).save(any(UserEntity.class));
 
         assertFalse(res);
-
-
-
     }
 
     // findUserNotAdminNotDeletedByEmail --> !NULL
     // save --> NULL
     @Test
     void deleteUserSaveReturnNull() {
-        UserEntity saved1 = userEntity1;
-        //saved.setStatus(UserStatusEnum.DELETED);
-        UserEntity saved = new UserEntity(
-                1L,
-                "client1@example.com",
-                UserRoleEnum.CLIENT,
-                UserStatusEnum.DELETED,
-                Timestamp.valueOf(LocalDateTime.now()),
-                null,
-                Timestamp.valueOf(LocalDateTime.now()),
-                "12345"
-        );
-
         when(userRepositoryMock.findUserNotAdminNotDeletedByEmail(any(String.class))).thenReturn(userEntity1);
         when(userRepositoryMock.save(any(UserEntity.class))).thenReturn(null);
 
@@ -763,17 +490,13 @@ class UserServiceTest {
         verify(userRepositoryMock, times(1)).save(any(UserEntity.class));
 
         assertFalse(res);
-
-
     }
-
 
     // findUserNotAdminNotDeletedByEmail --> !NULL
     // save --> !NULL
     // user.getStatus() --> NULL
     @Test
     void deleteUserStatusNull() {
-        UserEntity test = userEntity1;
         UserEntity saved = new UserEntity(
                 1L,
                 "client1@example.com",
@@ -787,15 +510,12 @@ class UserServiceTest {
 
         when(userRepositoryMock.findUserNotAdminNotDeletedByEmail(any(String.class))).thenReturn(userEntity1);
         when(userRepositoryMock.save(any(UserEntity.class))).thenReturn(saved);
-        //saved.setStatus(null);
 
         boolean res = userServiceTest.deleteUser(userEntity1.getEmail());
         verify(userRepositoryMock, times(1)).findUserNotAdminNotDeletedByEmail(any(String.class));
         verify(userRepositoryMock, times(1)).save(any(UserEntity.class));
 
         assertFalse(res);
-
-
     }
 
     // findUserNotAdminNotDeletedByEmail --> !NULL
@@ -804,7 +524,6 @@ class UserServiceTest {
     // user.getStatus() --> !expectedStatus
     @Test
     void deleteUserStatusWrong() {
-        UserEntity test = userEntity1;
         UserEntity saved = new UserEntity(
                 1L,
                 "client1@example.com",
@@ -818,17 +537,13 @@ class UserServiceTest {
 
         when(userRepositoryMock.findUserNotAdminNotDeletedByEmail(any(String.class))).thenReturn(userEntity1);
         when(userRepositoryMock.save(any(UserEntity.class))).thenReturn(saved);
-        //saved.setStatus(null);
 
         boolean res = userServiceTest.deleteUser(userEntity1.getEmail());
         verify(userRepositoryMock, times(1)).findUserNotAdminNotDeletedByEmail(any(String.class));
         verify(userRepositoryMock, times(1)).save(any(UserEntity.class));
 
         assertFalse(res);
-
-
     }
-
 
     @Test
     void getAllUsers() {
@@ -845,75 +560,32 @@ class UserServiceTest {
         assertEquals(UserRoleEnum.CLIENT, actualUsers.get(0).getRole());
         verify(userRepositoryMock).findAll();
         verify(userRepositoryMock, times(1)).findAll();
-        //verify(mappersMock).convertToUserCopyDto(any(UserEntity.class));
         verify(mappersMock, times(2)).convertToUserCopyDto(any(UserEntity.class));
     }
 
     @Test
     void getAllUsersRepoNullList() {
         when(userRepositoryMock.findAll()).thenReturn(null);
-//        when(mappersMock.convertToUserCopyDto(userEntity1)).thenReturn(userDto1);
-//        when(mappersMock.convertToUserCopyDto(userEntity2)).thenReturn(userDto2);
 
         List<UserCopyEntityDto> actualUsers = userServiceTest.getAllUsers();
 
         assertNotNull(actualUsers);
-        //assertTrue(actualUsers.size() > 0);
         assertEquals(0, actualUsers.size());
         verify(userRepositoryMock).findAll();
         verify(userRepositoryMock, times(1)).findAll();
-        //verify(mappersMock).convertToUserCopyDto(any(UserEntity.class));
         verify(mappersMock, times(0)).convertToUserCopyDto(any(UserEntity.class));
     }
 
     @Test
     void getAllUsersRepoEmptyList() {
         when(userRepositoryMock.findAll()).thenReturn(List.of());
-//        when(mappersMock.convertToUserCopyDto(userEntity1)).thenReturn(userDto1);
-//        when(mappersMock.convertToUserCopyDto(userEntity2)).thenReturn(userDto2);
 
         List<UserCopyEntityDto> actualUsers = userServiceTest.getAllUsers();
 
         assertNotNull(actualUsers);
-        //assertTrue(actualUsers.size() > 0);
         assertEquals(0, actualUsers.size());
         verify(userRepositoryMock).findAll();
         verify(userRepositoryMock, times(1)).findAll();
-        //verify(mappersMock).convertToUserCopyDto(any(UserEntity.class));
         verify(mappersMock, times(0)).convertToUserCopyDto(any(UserEntity.class));
     }
-
-
 }
-
-/*
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "UserID")
-    private Long userId;
-
-    @Column(name = "Email")
-    private String email;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "Role")
-    private UserRoleEnum role;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "Status")
-    private UserStatusEnum status;
-
-    @Column(name = "RegisteredAt")
-    private Timestamp registeredAt;
-
-    @Column(name = "LastActiveAt")
-    private Timestamp lastActiveAt;
-
-    @Column(name = "UpdatedAt")
-    private Timestamp updatedAt;
-
-    @Column(name = "PasswordHash")
-    private String passwordHash;
-
-
- */
