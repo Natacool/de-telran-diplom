@@ -15,10 +15,11 @@ import java.util.List;
 @RestController
 @RequestMapping //(value = "/urls")
 @RequiredArgsConstructor
-public class UrlController {
+public class UrlController implements UrlControllerInterface {
     private final UrlService urlService;
 
     // Anonymus, User, Admin  APIs
+    @Override
     @PostMapping(value = "/c")
 //    @LogAnnotation
 //    public ResponseEntity<UrlDto> generateUrl(@RequestBody @Valid UserDto newUser) { //insert
@@ -32,6 +33,7 @@ public class UrlController {
         return ResponseEntity.status(status).body(shortUrl);
     }
 
+    @Override
     @GetMapping(value = "/x")
     public RedirectView redirectUrlBody(@RequestBody ShortUrlIdDto shortUrl) {
         String longUrl = urlService.getRedirectUrl(shortUrl.getUrlId());
@@ -42,6 +44,7 @@ public class UrlController {
         return newView;
     }
 
+    @Override
     @GetMapping(value = "/{urlId}")
     public RedirectView redirectUrl(@PathVariable String urlId) {
         String longUrl = urlService.getRedirectUrl(urlId);
@@ -52,6 +55,7 @@ public class UrlController {
         return newView;
     }
 
+    @Override
     @GetMapping(value = "/wrong/url/{urlId}")
     public ResponseEntity<String> redirectErrMsg(@PathVariable String urlId){
         String homeURL = ServletUriComponentsBuilder.fromCurrentContextPath().toUriString();
@@ -59,6 +63,7 @@ public class UrlController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorMsg);
     }
 
+    @Override
     @DeleteMapping //(value = "/r")
     public ResponseEntity<String> deleteByShortUrl(@RequestBody ShortUrlIdDto shortUrl) {
         Boolean ret = urlService.deleteByShortUrl(shortUrl);
@@ -72,12 +77,14 @@ public class UrlController {
     }
 
     // Admin APIs
+    @Override
     @GetMapping  //(value = "/r")
     public ResponseEntity<List<UrlCopyEntityDto>> getAllUrls() {
         List<UrlCopyEntityDto> users = urlService.getAllUrls();
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
+    @Override
     @GetMapping(value = "/long") // /r
     public ResponseEntity<String> getLongUrl(@RequestBody ShortUrlIdDto url){
         String longUrl = urlService.getLongUrl(url.getUrlId());
@@ -88,6 +95,7 @@ public class UrlController {
         return ResponseEntity.status(status).body(longUrl);
     }
 
+    @Override
     @GetMapping(value = "/short") // /r
     public ResponseEntity<String> getShortUrl(@RequestBody LongUrlDto url){
         String shortUrl = urlService.getShortUrl(url.getUrl());
@@ -98,6 +106,7 @@ public class UrlController {
         return ResponseEntity.status(status).body(shortUrl);
     }
 
+    @Override
     @PutMapping //(value = "/r")
     // user ???
     // admin can update timer for deleting

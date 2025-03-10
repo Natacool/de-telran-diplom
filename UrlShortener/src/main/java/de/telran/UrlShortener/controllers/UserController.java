@@ -2,7 +2,6 @@ package de.telran.UrlShortener.controllers;
 
 import de.telran.UrlShortener.dtos.*;
 import de.telran.UrlShortener.services.UserService;
-import liquibase.util.StringUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,9 +12,10 @@ import java.util.List;
 @RestController
 @RequestMapping(value = "/users")
 @RequiredArgsConstructor
-public class UserController {
+public class UserController implements UserControllerInterface {
     private final UserService userService;
 
+    @Override
     @PostMapping
     public ResponseEntity<UserResponseDto> createUser(@RequestBody UserRequestDto newUser) {
         UserResponseDto user = userService.createUser(newUser);
@@ -32,12 +32,14 @@ public class UserController {
         return ResponseEntity.status(status).body(user);
     }
 
+    @Override
     @GetMapping
     public ResponseEntity<List<UserCopyEntityDto>> getAllUsers() {
         List<UserCopyEntityDto> users = userService.getAllUsers();
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
+    @Override
     @GetMapping(value = "/get")
     public ResponseEntity<UserResponseDto> getUserByEmail(@RequestBody UserDto reqUser) {
         UserResponseDto user = userService.getUserByEmail(reqUser.getEmail());
@@ -48,6 +50,7 @@ public class UserController {
         return ResponseEntity.status(status).body(user);
     }
 
+    @Override
     @PutMapping
     public ResponseEntity<UserResponseDto> updateUserStatus(@RequestBody UserRequestUpdateDto updUser) {
         UserResponseDto user = userService.updateUser(updUser);
@@ -65,6 +68,7 @@ public class UserController {
         return ResponseEntity.status(status).body(user);
     }
 
+    @Override
     @DeleteMapping
     public ResponseEntity<String> deleteUser(@RequestBody UserDto delUser) {
         Boolean ret = userService.deleteUser(delUser.getEmail());
